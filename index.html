@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pankaj Deore — 2D Concept Artist & Comic Illustrator Portfolio</title>
+  <meta name="description" content="Portfolio of Pankaj Deore: Concept Art, Character Design, Comic Inking & Sequences. Available for freelance & studio roles.">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Admin Studio Toolbar (Active when logged in) -->
+  <div id="admin-toolbar" class="admin-toolbar" style="display: none;">
+    <div class="admin-toolbar-inner">
+      <div class="admin-toolbar-left">
+        <span class="admin-status-badge"><i class="fa-solid fa-shield-halved"></i> Studio Admin</span>
+        <span class="admin-user-info">Logged in as <strong>Pankaj</strong></span>
+        <span class="admin-drag-tip"><i class="fa-solid fa-arrows-up-down-left-right"></i> Drag to Reorder • Drag Edges / Corner to Resize</span>
+      </div>
+      <div class="admin-toolbar-center">
+        <button class="admin-tool-btn" onclick="openAddArtworkModal()" title="Add a new image/video to your portfolio">
+          <i class="fa-solid fa-plus"></i> Add Artwork
+        </button>
+        <button class="admin-tool-btn highlight" onclick="exportDataFile()" title="Export updated artworks_data.js file to disk">
+          <i class="fa-solid fa-download"></i> Export Data File
+        </button>
+        <button class="admin-tool-btn" onclick="openProfileModal()" title="Edit Contact Info, Phone/WhatsApp, LinkedIn & Bio">
+          <i class="fa-solid fa-address-card"></i> Contact & Bio
+        </button>
+        <button class="admin-tool-btn" onclick="toggleShowHiddenArtworks()" id="toggle-hidden-btn" title="Show or hide deleted items">
+          <i class="fa-solid fa-eye"></i> Hidden Items (<span id="hidden-count">0</span>)
+        </button>
+        <button class="admin-tool-btn" onclick="openPasswordChangeModal()" title="Change Admin Password">
+          <i class="fa-solid fa-key"></i> Password
+        </button>
+        <button class="admin-tool-btn danger" onclick="confirmResetDefaults()" title="Reset to original files">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+      </div>
+      <div class="admin-toolbar-right">
+        <button class="admin-tool-btn logout" onclick="logoutAdmin()" title="Logout of Admin Panel">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#" class="brand-area" onclick="setCategory('featured'); return false;">
+        <div class="brand-badge" id="secret-admin-badge" ondblclick="openLoginModal(); event.stopPropagation();" title="Pankaj Deore">PD</div>
+        <div class="brand-info">
+          <h1>PANKAJ DEORE</h1>
+          <p>Concept Artist & Comic Illustrator • Nashik, India</p>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="search-input" class="search-input" placeholder="Search title, story, character, or category..." />
+      </div>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <span class="hire-badge">
+          <span class="pulse-dot"></span> Open to Work
+        </span>
+        <a href="#about" class="social-btn" style="padding: 0.4rem 0.9rem; font-size: 0.8rem;">
+          <i class="fa-solid fa-envelope"></i> Contact
+        </a>
+      </div>
+    </div>
+
+    <!-- Category Tabs Navigation Strip -->
+    <nav class="nav-strip">
+      <ul class="category-tabs">
+        <li>
+          <button class="tab-btn active" data-category="featured">
+            <i class="fa-solid fa-star"></i> Featured Highlights <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="character-design">
+            <i class="fa-solid fa-user-ninja"></i> Character Design <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="concept-art">
+            <i class="fa-solid fa-palette"></i> Concept Art <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="comic-cover-art">
+            <i class="fa-solid fa-book-open"></i> Comic Covers <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="comic-page-process">
+            <i class="fa-solid fa-pen-nib"></i> Comic Process <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="comic-sequence-art">
+            <i class="fa-solid fa-layer-group"></i> Comic Sequences <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="commission-work">
+            <i class="fa-solid fa-briefcase"></i> Commissions <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="personal-series">
+            <i class="fa-solid fa-heart"></i> Personal Series <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="pratilipi">
+            <i class="fa-solid fa-feather-pointed"></i> Pratilipi <span class="tab-count">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="tab-btn" data-category="video">
+            <i class="fa-solid fa-film"></i> Videos <span class="tab-count">0</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="view-header">
+      <div>
+        <h2 id="view-title">Curated Highlights</h2>
+        <span id="view-count">Loading artworks...</span>
+      </div>
+      <div id="admin-quick-add-wrap" style="display: none;">
+        <button class="admin-quick-btn" onclick="openAddArtworkModal()">
+          <i class="fa-solid fa-plus"></i> Add Artwork Here
+        </button>
+      </div>
+    </div>
+
+    <!-- Artwork Grid -->
+    <div id="art-grid" class="art-grid">
+      <!-- Artworks will be rendered dynamically by app.js -->
+    </div>
+  </main>
+
+  <!-- Fullscreen Lightbox Modal -->
+  <div id="lightbox-modal" class="modal-backdrop">
+    <div class="modal-container">
+      <button id="modal-close" class="modal-close" title="Close (ESC)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <button id="modal-prev" class="nav-arrow prev" title="Previous (Left Arrow)">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <div id="modal-media-wrap" class="modal-media-wrap">
+        <!-- Image or Video injected here -->
+      </div>
+
+      <button id="modal-next" class="nav-arrow next" title="Next (Right Arrow)">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+
+      <div class="modal-info">
+        <div class="modal-info-header">
+          <div class="modal-titles-block">
+            <h3 id="modal-title" class="modal-title">Artwork Title</h3>
+            <p id="modal-category" class="modal-subtitle">Category • Filename</p>
+          </div>
+          <div id="modal-admin-actions" class="modal-admin-actions" style="display: none;">
+            <button class="btn-action-pill edit" onclick="openCurrentModalEditor()" title="Edit this artwork details and story">
+              <i class="fa-solid fa-pen-to-square"></i> Edit Artwork
+            </button>
+            <button id="modal-feature-btn" class="btn-action-pill star" onclick="toggleCurrentModalFeatured()" title="Toggle Featured on 1st page">
+              <i class="fa-solid fa-star"></i> Feature
+            </button>
+          </div>
+        </div>
+
+        <!-- Story / Lore / Concept Notes Section -->
+        <div id="modal-story-wrap" class="modal-story-wrap">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="admin-login-modal" class="modal-backdrop sub-modal">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dialog-header">
+        <div class="dialog-icon-badge"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Studio Admin Access</h3>
+        <p>Login to manage artworks, feature top picks, write stories & delete images.</p>
+      </div>
+
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+        <div id="login-error-msg" class="dialog-alert error" style="display: none;"></div>
+
+        <div class="form-group">
+          <label for="admin-user-input"><i class="fa-solid fa-user"></i> Username</label>
+          <input type="text" id="admin-user-input" class="form-input" placeholder="Enter username" required autocomplete="username" />
+        </div>
+
+        <div class="form-group">
+          <label for="admin-pass-input"><i class="fa-solid fa-lock"></i> Password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="admin-pass-input" class="form-input" placeholder="Enter password" required autocomplete="current-password" />
+            <button type="button" class="pass-toggle-btn" onclick="togglePasswordVisibility('admin-pass-input')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeLoginModal()">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login as Admin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Artwork Editor Modal -->
+  <div id="artwork-editor-modal" class="modal-backdrop sub-modal">
+    <div class="dialog-card wide">
+      <button class="dialog-close" onclick="closeArtworkEditor()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dialog-header">
+        <div class="dialog-icon-badge edit"><i class="fa-solid fa-pen-nib"></i></div>
+        <h3 id="editor-modal-heading">Edit Artwork Details</h3>
+        <p>Update title, category, featured status, creative backstory, tools & client info.</p>
+      </div>
+
+      <form id="artwork-editor-form" onsubmit="handleSaveArtwork(event)">
+        <input type="hidden" id="edit-art-id" />
+
+        <div class="editor-grid">
+          <!-- Left Column: Form Fields -->
+          <div class="editor-fields">
+            <div class="form-group">
+              <label for="edit-title"><i class="fa-solid fa-heading"></i> Artwork Title</label>
+              <input type="text" id="edit-title" class="form-input" required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-category"><i class="fa-solid fa-folder"></i> Category</label>
+                <select id="edit-category" class="form-input" required>
+                  <option value="character-design">Character Design</option>
+                  <option value="concept-art">Concept Art</option>
+                  <option value="comic-cover-art">Comic Cover Art</option>
+                  <option value="comic-page-process">Comic Page Process</option>
+                  <option value="comic-sequence-art">Comic Sequence Art</option>
+                  <option value="commission-work">Commission Work</option>
+                  <option value="personal-series">Personal Series</option>
+                  <option value="pratilipi">Pratilipi Projects</option>
+                  <option value="video">Videos & Animation</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="edit-client"><i class="fa-solid fa-briefcase"></i> Client / Project</label>
+                <input type="text" id="edit-client" class="form-input" placeholder="e.g. Pratilipi / IASAN Govt / Personal" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-tools"><i class="fa-solid fa-paintbrush"></i> Software & Tools</label>
+                <input type="text" id="edit-tools" class="form-input" placeholder="e.g. Photoshop, Clip Studio, Blender" />
+              </div>
+
+              <div class="form-group">
+                <label for="edit-year"><i class="fa-solid fa-calendar"></i> Year</label>
+                <input type="text" id="edit-year" class="form-input" placeholder="e.g. 2024" />
+              </div>
+            </div>
+
+            <!-- Story / Lore / Concept Narrative -->
+            <div class="form-group">
+              <label for="edit-story"><i class="fa-solid fa-book-sparkles"></i> Concept Story / Backstory / Creative Notes</label>
+              <textarea id="edit-story" class="form-textarea" rows="4" placeholder="Write the backstory, character lore, inspiration, or process notes for this artwork..."></textarea>
+            </div>
+
+            <!-- Showcase Layout Sizing -->
+            <div class="form-group">
+              <label><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Card Showcase Size (Highlighting)</label>
+              <div class="size-selector-grid">
+                <label class="size-option-label">
+                  <input type="radio" name="edit-spanSize" value="normal" checked />
+                  <span class="size-pill-box">
+                    <span class="box-preview normal"></span>
+                    <span class="box-title">Regular</span>
+                    <span class="box-sub">1x1 Standard</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="edit-spanSize" value="wide" />
+                  <span class="size-pill-box">
+                    <span class="box-preview wide"></span>
+                    <span class="box-title">Wide Banner</span>
+                    <span class="box-sub">2x1 Panorama</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="edit-spanSize" value="tall" />
+                  <span class="size-pill-box">
+                    <span class="box-preview tall"></span>
+                    <span class="box-title">Tall Portrait</span>
+                    <span class="box-sub">1x2 Comic</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="edit-spanSize" value="hero" />
+                  <span class="size-pill-box">
+                    <span class="box-preview hero"></span>
+                    <span class="box-title">👑 Hero Master</span>
+                    <span class="box-sub">2x2 Spotlight</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Fine-grain Column and Row Controls -->
+              <div class="form-row" style="margin-top: 0.85rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="edit-colSpan"><i class="fa-solid fa-arrows-left-right"></i> Width (Columns: 1 - 4)</label>
+                  <select id="edit-colSpan" class="form-input" onchange="syncSpanFromSelect()">
+                    <option value="1">1 Column (Default)</option>
+                    <option value="2">2 Columns (Wide)</option>
+                    <option value="3">3 Columns (Super Wide)</option>
+                    <option value="4">4 Columns (Full Row)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="edit-rowSpan"><i class="fa-solid fa-arrows-up-down"></i> Height (Rows: 1 - 4)</label>
+                  <select id="edit-rowSpan" class="form-input" onchange="syncSpanFromSelect()">
+                    <option value="1">1 Row (Default)</option>
+                    <option value="2">2 Rows (Tall)</option>
+                    <option value="3">3 Rows (Extra Tall)</option>
+                    <option value="4">4 Rows (Giant)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="form-toggles">
+              <label class="toggle-card">
+                <input type="checkbox" id="edit-featured" />
+                <div class="toggle-content">
+                  <div class="toggle-title"><i class="fa-solid fa-star" style="color: #ffd700;"></i> Feature on 1st Page Highlights</div>
+                  <div class="toggle-desc">Artwork will be shown in the curated front showcase for recruiters.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card danger">
+                <input type="checkbox" id="edit-hidden" />
+                <div class="toggle-content">
+                  <div class="toggle-title"><i class="fa-solid fa-eye-slash" style="color: #ff5555;"></i> Hide / Delete from Public View</div>
+                  <div class="toggle-desc">Hides this artwork from public visitors (only visible to admin).</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Right Column: Media Preview -->
+          <div class="editor-preview-col">
+            <label class="preview-label">Current Media Preview</label>
+            <div id="edit-preview-wrap" class="edit-preview-box">
+              <!-- Image/Video injected -->
+            </div>
+            <div class="preview-filename" id="edit-preview-filename">filename.png</div>
+          </div>
+        </div>
+
+        <div class="form-actions space-between">
+          <button type="button" class="btn-danger" onclick="handleDeleteArtworkBtn()">
+            <i class="fa-solid fa-trash"></i> Permanently Delete
+          </button>
+          <div class="actions-group">
+            <button type="button" class="btn-secondary" onclick="closeArtworkEditor()">Cancel</button>
+            <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Artwork</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add New Artwork Modal -->
+  <div id="add-artwork-modal" class="modal-backdrop sub-modal">
+    <div class="dialog-card wide">
+      <button class="dialog-close" onclick="closeAddArtworkModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dialog-header">
+        <div class="dialog-icon-badge add"><i class="fa-solid fa-circle-plus"></i></div>
+        <h3>Add New Artwork to Portfolio</h3>
+        <p>Add a new illustration, concept art, character sheet, or process video.</p>
+      </div>
+
+      <form id="add-artwork-form" onsubmit="handleAddArtworkSubmit(event)">
+        <div class="editor-grid">
+          <div class="editor-fields">
+            <div class="form-group">
+              <label for="add-title"><i class="fa-solid fa-heading"></i> Artwork Title</label>
+              <input type="text" id="add-title" class="form-input" placeholder="e.g. Cyberpunk Ronin Inking" required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="add-category"><i class="fa-solid fa-folder"></i> Category</label>
+                <select id="add-category" class="form-input" required>
+                  <option value="character-design">Character Design</option>
+                  <option value="concept-art">Concept Art</option>
+                  <option value="comic-cover-art">Comic Cover Art</option>
+                  <option value="comic-page-process">Comic Page Process</option>
+                  <option value="comic-sequence-art">Comic Sequence Art</option>
+                  <option value="commission-work">Commission Work</option>
+                  <option value="personal-series">Personal Series</option>
+                  <option value="pratilipi">Pratilipi Projects</option>
+                  <option value="video">Videos & Animation</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="add-client"><i class="fa-solid fa-briefcase"></i> Client / Project</label>
+                <input type="text" id="add-client" class="form-input" placeholder="e.g. Pratilipi / Personal" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="add-tools"><i class="fa-solid fa-paintbrush"></i> Software & Tools</label>
+                <input type="text" id="add-tools" class="form-input" placeholder="e.g. Photoshop, Clip Studio, Blender" />
+              </div>
+
+              <div class="form-group">
+                <label for="add-year"><i class="fa-solid fa-calendar"></i> Year</label>
+                <input type="text" id="add-year" class="form-input" placeholder="2026" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="add-src"><i class="fa-solid fa-link"></i> Relative Path or Image URL</label>
+              <input type="text" id="add-src" class="form-input" placeholder="e.g. concept art/new_character.png or https://..." required oninput="previewAddImage(this.value)" />
+            </div>
+
+            <div class="form-group">
+              <label for="add-file-picker"><i class="fa-solid fa-upload"></i> Or Upload Local File Directly</label>
+              <input type="file" id="add-file-picker" class="form-input" accept="image/*,video/*" onchange="handleLocalFileUpload(event)" />
+            </div>
+
+            <div class="form-group">
+              <label for="add-story"><i class="fa-solid fa-feather"></i> Artwork Story / Backstory / Lore</label>
+              <textarea id="add-story" class="form-textarea" rows="3" placeholder="Tell the creative story or lore behind this artwork..."></textarea>
+            </div>
+
+            <!-- Showcase Layout Sizing -->
+            <div class="form-group">
+              <label><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Card Showcase Size (Highlighting)</label>
+              <div class="size-selector-grid">
+                <label class="size-option-label">
+                  <input type="radio" name="add-spanSize" value="normal" checked />
+                  <span class="size-pill-box">
+                    <span class="box-preview normal"></span>
+                    <span class="box-title">Regular</span>
+                    <span class="box-sub">1x1 Standard</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="add-spanSize" value="wide" />
+                  <span class="size-pill-box">
+                    <span class="box-preview wide"></span>
+                    <span class="box-title">Wide Banner</span>
+                    <span class="box-sub">2x1 Panorama</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="add-spanSize" value="tall" />
+                  <span class="size-pill-box">
+                    <span class="box-preview tall"></span>
+                    <span class="box-title">Tall Portrait</span>
+                    <span class="box-sub">1x2 Comic</span>
+                  </span>
+                </label>
+
+                <label class="size-option-label">
+                  <input type="radio" name="add-spanSize" value="hero" />
+                  <span class="size-pill-box">
+                    <span class="box-preview hero"></span>
+                    <span class="box-title">👑 Hero Master</span>
+                    <span class="box-sub">2x2 Spotlight</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Fine-grain Column and Row Controls -->
+              <div class="form-row" style="margin-top: 0.85rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="add-colSpan"><i class="fa-solid fa-arrows-left-right"></i> Width (Columns: 1 - 4)</label>
+                  <select id="add-colSpan" class="form-input" onchange="syncAddSpanFromSelect()">
+                    <option value="1">1 Column (Default)</option>
+                    <option value="2">2 Columns (Wide)</option>
+                    <option value="3">3 Columns (Super Wide)</option>
+                    <option value="4">4 Columns (Full Row)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="add-rowSpan"><i class="fa-solid fa-arrows-up-down"></i> Height (Rows: 1 - 4)</label>
+                  <select id="add-rowSpan" class="form-input" onchange="syncAddSpanFromSelect()">
+                    <option value="1">1 Row (Default)</option>
+                    <option value="2">2 Rows (Tall)</option>
+                    <option value="3">3 Rows (Extra Tall)</option>
+                    <option value="4">4 Rows (Giant)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <label class="toggle-card">
+              <input type="checkbox" id="add-featured" checked />
+              <div class="toggle-content">
+                <div class="toggle-title"><i class="fa-solid fa-star" style="color: #ffd700;"></i> Feature on 1st Page Highlights</div>
+                <div class="toggle-desc">Show this in the primary showcase.</div>
+              </div>
+            </label>
+          </div>
+
+          <div class="editor-preview-col">
+            <label class="preview-label">Live Preview</label>
+            <div id="add-preview-wrap" class="edit-preview-box">
+              <div class="empty-preview"><i class="fa-solid fa-image"></i> Enter image path or select file</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeAddArtworkModal()">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Add to Portfolio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="change-password-modal" class="modal-backdrop sub-modal">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="closePasswordChangeModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dialog-header">
+        <div class="dialog-icon-badge"><i class="fa-solid fa-key"></i></div>
+        <h3>Change Admin Password</h3>
+        <p>Set a new password for your Studio Admin portal.</p>
+      </div>
+
+      <form id="change-password-form" onsubmit="handleChangePassword(event)">
+        <div id="pwd-error-msg" class="dialog-alert error" style="display: none;"></div>
+
+        <div class="form-group">
+          <label for="current-pass-input">Current Password</label>
+          <input type="password" id="current-pass-input" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label for="new-pass-input">New Password</label>
+          <input type="password" id="new-pass-input" class="form-input" minlength="4" required />
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-pass-input">Confirm New Password</label>
+          <input type="password" id="confirm-pass-input" class="form-input" minlength="4" required />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closePasswordChangeModal()">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-check"></i> Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Contact & Bio Modal -->
+  <div id="edit-profile-modal" class="modal-backdrop sub-modal">
+    <div class="dialog-card" style="max-width: 560px;">
+      <button class="dialog-close" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dialog-header">
+        <div class="dialog-icon-badge"><i class="fa-solid fa-address-card"></i></div>
+        <h3>Edit Contact Details & Bio</h3>
+        <p>Update your real email, phone/WhatsApp, LinkedIn, and ArtStation links.</p>
+      </div>
+
+      <form id="edit-profile-form" onsubmit="handleSaveProfile(event)">
+        <div class="form-group">
+          <label for="profile-email-input"><i class="fa-solid fa-envelope"></i> Email Address</label>
+          <input type="email" id="profile-email-input" class="form-input" placeholder="e.g. yourname@gmail.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-phone-input"><i class="fa-brands fa-whatsapp"></i> WhatsApp / Phone Number (Optional)</label>
+          <input type="text" id="profile-phone-input" class="form-input" placeholder="e.g. +91 9876543210 (digits only or with +91)" />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-linkedin-input"><i class="fa-brands fa-linkedin"></i> LinkedIn Profile URL</label>
+          <input type="url" id="profile-linkedin-input" class="form-input" placeholder="e.g. https://www.linkedin.com/in/your-profile" />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-artstation-input"><i class="fa-brands fa-artstation"></i> ArtStation Profile URL (Optional)</label>
+          <input type="url" id="profile-artstation-input" class="form-input" placeholder="e.g. https://www.artstation.com/your-username" />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-instagram-input"><i class="fa-brands fa-instagram"></i> Instagram Profile URL (Optional)</label>
+          <input type="url" id="profile-instagram-input" class="form-input" placeholder="e.g. https://instagram.com/your_handle" />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-bio-input"><i class="fa-solid fa-user-pen"></i> About Me / Bio Description</label>
+          <textarea id="profile-bio-input" class="form-input" rows="4" style="resize: vertical;"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeProfileModal()">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-check"></i> Save Details</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Footer & About Section -->
+  <footer id="about" class="site-footer">
+    <div class="footer-content">
+      <div class="bio-area">
+        <h3 class="bio-title">About Pankaj Deore</h3>
+        <p class="bio-desc" id="footer-bio-text">
+          Professional 2D Concept Artist and Comic Book Illustrator based in Nashik, Maharashtra. 
+          Specialized in expressive character design, dynamic comic layouts, line art inking, and visual worldbuilding. 
+          Experienced across digital illustration, comic sequences, and IP development.
+        </p>
+      </div>
+
+      <div class="contact-area">
+        <h4 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--text-main);">Connect & Inquiries</h4>
+        <div class="social-links" id="footer-social-links">
+          <a href="mailto:pankajfreelancer09@gmail.com" id="footer-email-link" class="social-btn" title="Send an Email">
+            <i class="fa-solid fa-envelope"></i> <span id="footer-email-text">pankajfreelancer09@gmail.com</span>
+          </a>
+          <a href="tel:+919175928323" id="footer-phone-link" class="social-btn" title="Call directly">
+            <i class="fa-solid fa-phone"></i> <span id="footer-phone-text">+91 91759 28323</span>
+          </a>
+          <a href="https://wa.me/919175928323?text=Hi%20Pankaj,%20saw%20your%20art%20portfolio%20and%20wanted%20to%20connect!" id="footer-whatsapp-link" target="_blank" class="social-btn" title="Chat on WhatsApp" style="border-color: rgba(37, 211, 102, 0.4); color: #25d366;">
+            <i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">WhatsApp</span>
+          </a>
+          <a href="https://www.linkedin.com" id="footer-linkedin-link" target="_blank" class="social-btn" title="LinkedIn Profile">
+            <i class="fa-brands fa-linkedin"></i> LinkedIn
+          </a>
+          <a href="https://www.artstation.com" id="footer-artstation-link" target="_blank" class="social-btn" title="ArtStation Profile">
+            <i class="fa-brands fa-artstation"></i> ArtStation
+          </a>
+          <a href="#" id="footer-instagram-link" target="_blank" class="social-btn" style="display: none;">
+            <i class="fa-brands fa-instagram"></i> Instagram
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Pankaj Deore • ArtStation Portfolio Showcase <span class="secret-admin-dot" onclick="openLoginModal()" title="Studio Access" style="cursor: pointer; opacity: 0.22; font-size: 1.15rem; line-height: 1; padding: 0 4px; user-select: none;">•</span></p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="artworks_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
