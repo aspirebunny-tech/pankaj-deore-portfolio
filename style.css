@@ -1968,6 +1968,13 @@ body {
   align-items: center;
   gap: 0.35rem;
 }
+.pdf-featured-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  min-width: 220px;
+}
 .pdf-dl-btn {
   white-space: nowrap;
   padding: 0.7rem 1.3rem;
