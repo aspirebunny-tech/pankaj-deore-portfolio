@@ -72,6 +72,9 @@
         <span class="hire-badge">
           <span class="pulse-dot"></span> Open to Work
         </span>
+        <button class="pdf-header-btn" onclick="openPdfModal()" title="Download PDF Portfolio">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </button>
         <a href="#about" class="social-btn" style="padding: 0.4rem 0.9rem; font-size: 0.8rem;">
           <i class="fa-solid fa-envelope"></i> Contact
         </a>
@@ -688,8 +691,138 @@
     </div>
   </footer>
 
+  <!-- PDF Portfolio Download Center Popup Modal -->
+  <div id="pdf-download-modal" class="modal-backdrop">
+    <div class="modal-container pdf-modal-card">
+      <div class="modal-header pdf-modal-header">
+        <div class="pdf-modal-title-group">
+          <div class="pdf-icon-badge"><i class="fa-solid fa-file-pdf"></i></div>
+          <div>
+            <h3 class="modal-title">Pankaj Deore — PDF Portfolio Center</h3>
+            <p class="modal-subtitle">Categorized & Full Master Artbook Downloads for Recruiters, Studios & Publishers</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closePdfModal()" title="Close Popup">&times;</button>
+      </div>
+
+      <div class="pdf-modal-body">
+        <div class="pdf-loading-notice">
+          <span class="pulse-dot"></span>
+          <span>Web gallery artworks are loading in the background. Download categorized PDF files below or explore live.</span>
+        </div>
+
+        <!-- Master Portfolio Showcase Card -->
+        <div class="pdf-featured-card">
+          <div class="pdf-featured-left">
+            <span class="pdf-star-badge"><i class="fa-solid fa-star"></i> Complete Master Artbook</span>
+            <h4 class="pdf-card-title">Pankaj Deore — Master Portfolio (All Categories)</h4>
+            <p class="pdf-card-desc">69 curated artworks in exact portfolio sequence. Includes full concept art, character turnarounds, comic storytelling pages, inking, and commissions.</p>
+            <div class="pdf-card-meta">
+              <span><i class="fa-solid fa-images"></i> 69 Artworks</span>
+              <span><i class="fa-solid fa-file-lines"></i> 70 Landscape Pages</span>
+              <span><i class="fa-solid fa-hard-drive"></i> ~27 MB PDF</span>
+            </div>
+          </div>
+          <div class="pdf-featured-right">
+            <a href="pdf/Pankaj_Deore_Master_Portfolio.pdf" download="Pankaj_Deore_Master_Portfolio.pdf" class="btn-primary pdf-dl-btn">
+              <i class="fa-solid fa-cloud-arrow-down"></i> Download Master PDF
+            </a>
+          </div>
+        </div>
+
+        <div class="pdf-bifurcation-heading">
+          <i class="fa-solid fa-folder-tree"></i> Categorized Bifurcation Downloads
+        </div>
+
+        <!-- Bifurcation Grid -->
+        <div class="pdf-grid">
+          <!-- 1. Concept Art -->
+          <div class="pdf-category-item">
+            <div class="pdf-item-icon" style="color: #00e5ff;"><i class="fa-solid fa-paintbrush"></i></div>
+            <div class="pdf-item-info">
+              <div class="pdf-item-title">Concept Art & Worldbuilding</div>
+              <div class="pdf-item-sub">Lord Shiva master painting, dwarapals, mythical creatures</div>
+              <div class="pdf-item-tag">7 Works • 3 MB</div>
+            </div>
+            <a href="pdf/Pankaj_Deore_Concept_Art.pdf" download="Pankaj_Deore_Concept_Art.pdf" class="pdf-item-btn" title="Download Concept Art PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
+
+          <!-- 2. Character Design -->
+          <div class="pdf-category-item">
+            <div class="pdf-item-icon" style="color: #a855f7;"><i class="fa-solid fa-user-ninja"></i></div>
+            <div class="pdf-item-info">
+              <div class="pdf-item-title">Character Design & Models</div>
+              <div class="pdf-item-sub">Diesel character turnarounds, IASAN ethical hacking hero</div>
+              <div class="pdf-item-tag">9 Works • 2.1 MB</div>
+            </div>
+            <a href="pdf/Pankaj_Deore_Character_Design.pdf" download="Pankaj_Deore_Character_Design.pdf" class="pdf-item-btn" title="Download Character Design PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
+
+          <!-- 3. Comic Art & Inking -->
+          <div class="pdf-category-item">
+            <div class="pdf-item-icon" style="color: #3b82f6;"><i class="fa-solid fa-book-open"></i></div>
+            <div class="pdf-item-info">
+              <div class="pdf-item-title">Comic Sequences & Process</div>
+              <div class="pdf-item-sub">Storytelling panels, layouts, blue roughs, final inking</div>
+              <div class="pdf-item-tag">25 Works • 12 MB</div>
+            </div>
+            <a href="pdf/Pankaj_Deore_Comic_Art.pdf" download="Pankaj_Deore_Comic_Art.pdf" class="pdf-item-btn" title="Download Comic Art PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
+
+          <!-- 4. Commission Work -->
+          <div class="pdf-category-item">
+            <div class="pdf-item-icon" style="color: #ec4899;"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="pdf-item-info">
+              <div class="pdf-item-title">Commissions & Client Art</div>
+              <div class="pdf-item-sub">Client commissions, stylized character portraits, covers</div>
+              <div class="pdf-item-tag">32 Works • 20 MB</div>
+            </div>
+            <a href="pdf/Pankaj_Deore_Commission_Work.pdf" download="Pankaj_Deore_Commission_Work.pdf" class="pdf-item-btn" title="Download Commission Work PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
+
+          <!-- 5. Pratilipi Projects -->
+          <div class="pdf-category-item">
+            <div class="pdf-item-icon" style="color: #10b981;"><i class="fa-solid fa-feather-pointed"></i></div>
+            <div class="pdf-item-info">
+              <div class="pdf-item-title">Pratilipi Comic Projects</div>
+              <div class="pdf-item-sub">Episodic webcomic chapters, character lineup, official art</div>
+              <div class="pdf-item-tag">19 Works • 3.3 MB</div>
+            </div>
+            <a href="pdf/Pankaj_Deore_Pratilipi_Projects.pdf" download="Pankaj_Deore_Pratilipi_Projects.pdf" class="pdf-item-btn" title="Download Pratilipi PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="pdf-modal-footer">
+          <label class="pdf-checkbox-label">
+            <input type="checkbox" id="pdf-dont-show-checkbox" onchange="toggleDontShowPdf(this.checked)" />
+            <span>Don't show this popup automatically on my next visit</span>
+          </label>
+          <button type="button" class="btn-secondary" onclick="closePdfModal()">
+            <i class="fa-solid fa-arrow-right"></i> Explore Online Portfolio
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Download PDF Action Button -->
+  <button class="floating-pdf-btn" onclick="openPdfModal()" title="Download PDF Portfolio">
+    <i class="fa-solid fa-file-pdf"></i>
+    <span>PDF Portfolio</span>
+  </button>
+
   <!-- Scripts -->
-  <script src="artworks_data.js?v=12"></script>
-  <script src="app.js?v=12"></script>
+  <script src="artworks_data.js?v=13"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

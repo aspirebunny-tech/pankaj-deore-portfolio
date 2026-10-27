@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v12';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v13';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   setupRadioSyncListeners();
   renderGallery();
+  initPdfModal();
 });
 
 // Load artworks from localStorage or fallback to ARTWORKS_DATA
@@ -1484,7 +1485,9 @@ function setupEventListeners() {
       const addModal = document.getElementById('add-artwork-modal');
       const pwdModal = document.getElementById('change-password-modal');
       const profModal = document.getElementById('edit-profile-modal');
+      const pdfModal = document.getElementById('pdf-download-modal');
       
+      if (pdfModal && pdfModal.classList.contains('open')) { closePdfModal(); return; }
       if (loginModal && loginModal.classList.contains('open')) { closeLoginModal(); return; }
       if (editModal && editModal.classList.contains('open')) { closeArtworkEditor(); return; }
       if (addModal && addModal.classList.contains('open')) { closeAddArtworkModal(); return; }
@@ -1501,5 +1504,53 @@ function setupEventListeners() {
     }
   });
 
+  const pdfModal = document.getElementById('pdf-download-modal');
+  if (pdfModal) {
+    pdfModal.addEventListener('click', (e) => {
+      if (e.target === pdfModal) closePdfModal();
+    });
+  }
+
   window.addEventListener('hashchange', handleUrlHash);
 }
+
+// ==========================================================================
+// PDF DOWNLOAD CENTER & POPUP MODAL
+// ==========================================================================
+const STORAGE_KEY_DONT_SHOW_PDF = 'pankaj_hide_pdf_popup_v1';
+
+function openPdfModal() {
+  const modal = document.getElementById('pdf-download-modal');
+  if (modal) {
+    modal.classList.add('open');
+  }
+}
+
+function closePdfModal() {
+  const modal = document.getElementById('pdf-download-modal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+}
+
+function toggleDontShowPdf(checked) {
+  if (checked) {
+    localStorage.setItem(STORAGE_KEY_DONT_SHOW_PDF, 'true');
+  } else {
+    localStorage.removeItem(STORAGE_KEY_DONT_SHOW_PDF);
+  }
+}
+
+function initPdfModal() {
+  const dontShow = localStorage.getItem(STORAGE_KEY_DONT_SHOW_PDF);
+  if (!dontShow) {
+    setTimeout(() => {
+      openPdfModal();
+    }, 700);
+  }
+  const checkbox = document.getElementById('pdf-dont-show-checkbox');
+  if (checkbox && dontShow) {
+    checkbox.checked = true;
+  }
+}
+
