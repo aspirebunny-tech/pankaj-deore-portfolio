@@ -1596,7 +1596,7 @@ function getTotalVisitCount() {
   return isNaN(count) ? 0 : count;
 }
 
-function initVisitorTracking() {
+async function initVisitorTracking() {
   const isTracked = sessionStorage.getItem(SESSION_KEY_VISIT_TRACKED);
   
   // Detect device, browser, OS
@@ -1634,14 +1634,7 @@ function initVisitorTracking() {
     } catch (e) {}
   }
 
-  // Timezone / City hint
-  let tzCity = 'India';
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    if (tz) {
-      tzCity = tz.split('/').pop().replace(/_/g, ' ');
-    }
-  } catch (e) {}
+  const screenRes = `${window.screen.width || 0} x ${window.screen.height || 0}`;
 
   if (!isTracked) {
     sessionStorage.setItem(SESSION_KEY_VISIT_TRACKED, 'true');
@@ -1655,10 +1648,15 @@ function initVisitorTracking() {
       time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
       timestamp: Date.now(),
       device: deviceType,
+      screen: screenRes,
       browser: browser,
       os: os,
       country: 'India 🇮🇳',
-      city: tzCity,
+      city: '',
+      region: '',
+      postal: '',
+      isp: '',
+      ip: '',
       referrer: referrer
     };
 
@@ -1666,19 +1664,51 @@ function initVisitorTracking() {
     currentLog.unshift(newRecord);
     saveVisitorLog(currentLog);
 
-    // Asynchronously enrich with Country IP
-    fetch('https://api.country.is/')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.country) {
-          const code = data.country.toUpperCase();
-          const countryMap = { 'IN': 'India 🇮🇳', 'US': 'USA 🇺🇸', 'GB': 'UK 🇬🇧', 'AE': 'UAE 🇦🇪', 'CA': 'Canada 🇨🇦', 'AU': 'Australia 🇦🇺', 'DE': 'Germany 🇩🇪', 'SG': 'Singapore 🇸🇬' };
-          newRecord.country = countryMap[code] || `${code} 🌍`;
-          saveVisitorLog(currentLog);
-          updateVisitorDrawerUI();
+    // Fetch high-accuracy real-time IP Geolocation
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2800);
+
+      let geo = null;
+      try {
+        const res = await fetch('https://ipwho.is/', { signal: controller.signal });
+        if (res.ok) {
+          const d = await res.json();
+          if (d && d.success) geo = d;
         }
-      })
-      .catch(() => {});
+      } catch (e1) {}
+
+      if (!geo) {
+        try {
+          const res2 = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+          if (res2.ok) {
+            const d2 = await res2.json();
+            if (d2 && d2.city) {
+              geo = {
+                city: d2.city,
+                region: d2.region,
+                country: d2.country_name,
+                postal: d2.postal,
+                ip: d2.ip,
+                connection: { isp: d2.org }
+              };
+            }
+          }
+        } catch (e2) {}
+      }
+      clearTimeout(timeoutId);
+
+      if (geo) {
+        newRecord.city = geo.city || '';
+        newRecord.region = geo.region || '';
+        newRecord.country = geo.country ? `${geo.country} ${geo.flag?.emoji || '🇮🇳'}` : 'India 🇮🇳';
+        newRecord.postal = geo.postal || '';
+        newRecord.ip = geo.ip || '';
+        newRecord.isp = geo.connection?.isp || geo.org || '';
+        saveVisitorLog(currentLog);
+        updateVisitorDrawerUI();
+      }
+    } catch (err) {}
 
     // Send email alert via FormSubmit (only if not admin himself)
     if (!isAdminLoggedIn()) {
@@ -1692,16 +1722,22 @@ function initVisitorTracking() {
 function sendVisitorEmailAlert(record, isManualTest = false) {
   const profile = getProfileData();
   const targetEmail = profile.email || 'pankajfreelancer09@gmail.com';
-  
+
+  const cityState = [record.city, record.region].filter(Boolean).join(', ');
+  const fullLocation = [cityState, record.country, record.postal ? `(PIN: ${record.postal})` : ''].filter(Boolean).join(' ');
+
   const payload = {
     _subject: isManualTest 
       ? `🔔 TEST ALERT: Portfolio Visitor Tracking System Active!`
-      : `🎨 New Portfolio Visitor Alert: ${record.device} from ${record.country} (${record.city})`,
-    'Visitor Type': record.device === 'Mobile' ? '📱 Mobile Smartphone' : '💻 Desktop / Laptop',
-    'Location': `${record.city}, ${record.country}`,
-    'Traffic Source': record.referrer,
+      : `🎨 New Visitor Alert: ${record.device} from ${cityState || 'India'} ${record.country ? '' : '🇮🇳'}`,
+    'Visitor Device': record.device === 'Mobile' ? '📱 Mobile Smartphone' : '💻 Desktop / Laptop',
+    'Location (City, State, Country)': fullLocation || 'India 🇮🇳',
+    'Internet Provider (ISP)': record.isp || 'Broadband / Cellular Network',
+    'Visitor IP Address': record.ip || 'Recorded via Cloud Gateway',
+    'Screen Resolution': record.screen || 'Standard',
     'Browser & OS': `${record.browser} on ${record.os}`,
-    'Visit Date & Time': `${record.date} at ${record.time}`,
+    'Traffic Source': record.referrer,
+    'Visit Date & Time': `${record.date} at ${record.time} (IST)`,
     'Portfolio URL': window.location.href,
     _captcha: 'false',
     _template: 'table'
@@ -1782,6 +1818,7 @@ function updateVisitorDrawerUI() {
 
   timeline.innerHTML = log.slice(0, 30).map(item => {
     const isMob = item.device === 'Mobile';
+    const locText = [item.city, item.region].filter(Boolean).join(', ') || item.country || 'India 🇮🇳';
     return `
       <div class="visitor-card">
         <div class="visitor-card-top">
@@ -1792,7 +1829,8 @@ function updateVisitorDrawerUI() {
           </div>
         </div>
         <div class="visitor-details">
-          <span><i class="fa-solid fa-globe"></i> ${item.city || 'City'}</span>
+          <span><i class="fa-solid fa-location-dot"></i> ${locText}</span>
+          ${item.isp ? `<span>•</span> <span>${item.isp}</span>` : ''}
           <span>•</span>
           <span>${item.browser} (${item.os})</span>
         </div>
