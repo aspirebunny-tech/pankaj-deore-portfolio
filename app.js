@@ -296,12 +296,15 @@ function closeLoginModal() {
 
 function handleAdminLogin(e) {
   e.preventDefault();
-  const userInput = document.getElementById('admin-user-input').value.trim();
-  const passInput = document.getElementById('admin-pass-input').value;
+  const userInput = (document.getElementById('admin-user-input').value || '').trim();
+  const passInput = (document.getElementById('admin-pass-input').value || '').trim();
   const errorMsg = document.getElementById('login-error-msg');
   const creds = getAdminCredentials();
 
-  if (userInput.toLowerCase() === creds.user.toLowerCase() && passInput === creds.pass) {
+  const userMatch = userInput.toLowerCase() === (creds.user || '').toLowerCase();
+  const passMatch = passInput === creds.pass || passInput.toLowerCase() === (creds.pass || '').toLowerCase();
+
+  if (userMatch && passMatch) {
     sessionStorage.setItem(SESSION_KEY_LOGGED_IN, 'true');
     closeLoginModal();
     initAdminState();
