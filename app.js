@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v19';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v20';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -76,9 +76,6 @@ function getArtworkUrl(src) {
   }
   // Automatic web-optimized JPG path from gallery-optimized/
   let webSrc = src.replace(/\.(png|jpg|jpeg|heic|webp)$/i, '.jpg');
-  if (window.location.hostname.includes('github.io')) {
-    return encodeURI('https://raw.githubusercontent.com/aspirebunny-tech/pankaj-deore-portfolio/main/gallery-optimized/' + webSrc);
-  }
   return encodeURI('./gallery-optimized/' + webSrc);
 }
 
@@ -637,6 +634,7 @@ function renderGallery() {
     const rowSpan = Math.max(1, Math.min(4, art.rowSpan || 1));
     const isHero = (colSpan >= 2 && rowSpan >= 2);
     const isCustomSize = (colSpan > 1 || rowSpan > 1);
+    const isAboveTheFold = index < 6;
 
     return `
       <div class="art-card ${isHero ? 'span-hero' : ''} ${isHidden ? 'is-hidden' : ''}" 
@@ -669,7 +667,8 @@ function renderGallery() {
             <img class="art-img" 
                  src="${mediaUrl}" 
                  alt="${escapeHtml(art.title)}" 
-                 loading="lazy" 
+                 ${isAboveTheFold ? 'fetchpriority="high"' : 'loading="lazy"'}
+                 decoding="async" 
                  onerror="this.onerror=null; this.src='${getFullArtworkUrl(art.src)}';" />
           `}
 
@@ -1549,13 +1548,8 @@ function toggleDontShowPdf(checked) {
 }
 
 function initPdfModal() {
-  const dontShow = localStorage.getItem(STORAGE_KEY_DONT_SHOW_PDF);
-  if (!dontShow) {
-    setTimeout(() => {
-      openPdfModal();
-    }, 700);
-  }
   const checkbox = document.getElementById('pdf-dont-show-checkbox');
+  const dontShow = localStorage.getItem(STORAGE_KEY_DONT_SHOW_PDF);
   if (checkbox && dontShow) {
     checkbox.checked = true;
   }
