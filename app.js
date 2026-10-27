@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v20';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v21';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupRadioSyncListeners();
   renderGallery();
   initPdfModal();
+  initVisitorTracking();
 });
 
 // Load artworks from localStorage or fallback to ARTWORKS_DATA
@@ -263,6 +264,14 @@ function initAdminState() {
   }
 
   updateHiddenCountBadge();
+
+  const sidePill = document.getElementById('admin-visitor-side-pill');
+  if (sidePill) sidePill.style.display = loggedIn ? 'flex' : 'none';
+  if (loggedIn) {
+    updateVisitorDrawerUI();
+  } else {
+    closeVisitorDrawer();
+  }
 }
 
 function openLoginModal() {
@@ -1554,4 +1563,307 @@ function initPdfModal() {
     checkbox.checked = true;
   }
 }
+
+// ==========================================================================
+// VISITOR ANALYTICS, LIVE LOGS & EMAIL ALERTS
+// ==========================================================================
+const STORAGE_KEY_VISITORS_LOG = 'pankaj_portfolio_visitors_log_v2';
+const STORAGE_KEY_VISIT_COUNT = 'pankaj_portfolio_total_visits_v2';
+const SESSION_KEY_VISIT_TRACKED = 'pankaj_visit_session_tracked_v2';
+
+function getVisitorLog() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_VISITORS_LOG);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveVisitorLog(log) {
+  try {
+    localStorage.setItem(STORAGE_KEY_VISITORS_LOG, JSON.stringify(log.slice(0, 150)));
+  } catch (e) {}
+}
+
+function getTotalVisitCount() {
+  const count = parseInt(localStorage.getItem(STORAGE_KEY_VISIT_COUNT) || '0', 10);
+  return isNaN(count) ? 0 : count;
+}
+
+function initVisitorTracking() {
+  const isTracked = sessionStorage.getItem(SESSION_KEY_VISIT_TRACKED);
+  
+  // Detect device, browser, OS
+  const ua = navigator.userAgent || '';
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i.test(ua);
+  const deviceType = isTablet ? 'Tablet' : (isMobile ? 'Mobile' : 'Desktop');
+
+  let browser = 'Unknown Browser';
+  if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('SamsungBrowser')) browser = 'Samsung Internet';
+  else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+  else if (ua.includes('Edge') || ua.includes('Edg')) browser = 'Edge';
+  else if (ua.includes('Chrome')) browser = 'Chrome';
+  else if (ua.includes('Safari')) browser = 'Safari';
+
+  let os = 'Unknown OS';
+  if (ua.includes('Win')) os = 'Windows';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+  else if (ua.includes('Mac')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+
+  let referrer = 'Direct / Portfolio Link';
+  if (document.referrer) {
+    try {
+      const refHost = new URL(document.referrer).hostname;
+      if (refHost.includes('instagram.com')) referrer = 'Instagram 📸';
+      else if (refHost.includes('linkedin.com')) referrer = 'LinkedIn 💼';
+      else if (refHost.includes('artstation.com')) referrer = 'ArtStation 🎨';
+      else if (refHost.includes('google.')) referrer = 'Google Search 🔍';
+      else if (refHost.includes('facebook.com')) referrer = 'Facebook';
+      else if (refHost.includes('twitter.com') || refHost.includes('x.com')) referrer = 'Twitter / X';
+      else if (!refHost.includes(window.location.hostname)) referrer = refHost;
+    } catch (e) {}
+  }
+
+  // Timezone / City hint
+  let tzCity = 'India';
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    if (tz) {
+      tzCity = tz.split('/').pop().replace(/_/g, ' ');
+    }
+  } catch (e) {}
+
+  if (!isTracked) {
+    sessionStorage.setItem(SESSION_KEY_VISIT_TRACKED, 'true');
+    const newCount = getTotalVisitCount() + 1;
+    localStorage.setItem(STORAGE_KEY_VISIT_COUNT, String(newCount));
+
+    const now = new Date();
+    const newRecord = {
+      id: Date.now(),
+      date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      timestamp: Date.now(),
+      device: deviceType,
+      browser: browser,
+      os: os,
+      country: 'India 🇮🇳',
+      city: tzCity,
+      referrer: referrer
+    };
+
+    const currentLog = getVisitorLog();
+    currentLog.unshift(newRecord);
+    saveVisitorLog(currentLog);
+
+    // Asynchronously enrich with Country IP
+    fetch('https://api.country.is/')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.country) {
+          const code = data.country.toUpperCase();
+          const countryMap = { 'IN': 'India 🇮🇳', 'US': 'USA 🇺🇸', 'GB': 'UK 🇬🇧', 'AE': 'UAE 🇦🇪', 'CA': 'Canada 🇨🇦', 'AU': 'Australia 🇦🇺', 'DE': 'Germany 🇩🇪', 'SG': 'Singapore 🇸🇬' };
+          newRecord.country = countryMap[code] || `${code} 🌍`;
+          saveVisitorLog(currentLog);
+          updateVisitorDrawerUI();
+        }
+      })
+      .catch(() => {});
+
+    // Send email alert via FormSubmit (only if not admin himself)
+    if (!isAdminLoggedIn()) {
+      sendVisitorEmailAlert(newRecord);
+    }
+  }
+
+  updateVisitorDrawerUI();
+}
+
+function sendVisitorEmailAlert(record, isManualTest = false) {
+  const profile = getProfileData();
+  const targetEmail = profile.email || 'pankajfreelancer09@gmail.com';
+  
+  const payload = {
+    _subject: isManualTest 
+      ? `🔔 TEST ALERT: Portfolio Visitor Tracking System Active!`
+      : `🎨 New Portfolio Visitor Alert: ${record.device} from ${record.country} (${record.city})`,
+    'Visitor Type': record.device === 'Mobile' ? '📱 Mobile Smartphone' : '💻 Desktop / Laptop',
+    'Location': `${record.city}, ${record.country}`,
+    'Traffic Source': record.referrer,
+    'Browser & OS': `${record.browser} on ${record.os}`,
+    'Visit Date & Time': `${record.date} at ${record.time}`,
+    'Portfolio URL': window.location.href,
+    _captcha: 'false',
+    _template: 'table'
+  };
+
+  return fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(res => res.json()).catch(err => {
+    console.log('Silent visitor sync notification sent.');
+  });
+}
+
+function toggleVisitorDrawer() {
+  const drawer = document.getElementById('visitor-drawer');
+  const backdrop = document.getElementById('visitor-drawer-backdrop');
+  if (!drawer) return;
+
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    closeVisitorDrawer();
+  } else {
+    updateVisitorDrawerUI();
+    drawer.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+  }
+}
+
+function closeVisitorDrawer() {
+  const drawer = document.getElementById('visitor-drawer');
+  const backdrop = document.getElementById('visitor-drawer-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+}
+
+function updateVisitorDrawerUI() {
+  const log = getVisitorLog();
+  const totalVisits = getTotalVisitCount();
+  
+  // Update badges
+  const toolbarCount = document.getElementById('admin-toolbar-visitor-count');
+  if (toolbarCount) toolbarCount.textContent = totalVisits;
+
+  const pillBadge = document.getElementById('visitor-pill-badge');
+  if (pillBadge) pillBadge.textContent = totalVisits;
+
+  // Drawer stats
+  const totalEl = document.getElementById('vd-total-visits');
+  if (totalEl) totalEl.textContent = totalVisits;
+
+  const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const todayVisits = log.filter(item => item.date === todayStr).length;
+  const todayEl = document.getElementById('vd-today-visits');
+  if (todayEl) todayEl.textContent = todayVisits;
+
+  const mobileCount = log.filter(item => item.device === 'Mobile').length;
+  const desktopCount = log.filter(item => item.device === 'Desktop').length;
+  const totalTracked = log.length || 1;
+  const mobilePct = Math.round((mobileCount / totalTracked) * 100);
+  const ratioEl = document.getElementById('vd-device-ratio');
+  if (ratioEl) ratioEl.textContent = `${mobilePct}% Mob`;
+
+  // Render timeline cards
+  const timeline = document.getElementById('visitor-timeline');
+  if (!timeline) return;
+
+  if (log.length === 0) {
+    timeline.innerHTML = `
+      <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+        <i class="fa-solid fa-user-clock" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
+        <p style="font-size: 0.85rem;">No visitor sessions recorded yet.</p>
+        <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 2px;">New recruiter and client visits will show here automatically.</p>
+      </div>
+    `;
+    return;
+  }
+
+  timeline.innerHTML = log.slice(0, 30).map(item => {
+    const isMob = item.device === 'Mobile';
+    return `
+      <div class="visitor-card">
+        <div class="visitor-card-top">
+          <span class="visitor-time"><i class="fa-regular fa-clock"></i> ${item.date} • ${item.time}</span>
+          <div class="visitor-badges">
+            <span class="v-badge ${isMob ? 'mobile' : 'desktop'}">${isMob ? '📱 Mobile' : '💻 PC'}</span>
+            <span class="v-badge country">${item.country || 'India 🇮🇳'}</span>
+          </div>
+        </div>
+        <div class="visitor-details">
+          <span><i class="fa-solid fa-globe"></i> ${item.city || 'City'}</span>
+          <span>•</span>
+          <span>${item.browser} (${item.os})</span>
+        </div>
+        <div class="visitor-ref">
+          <i class="fa-solid fa-arrow-turn-down-right"></i> Source: <strong>${item.referrer}</strong>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function sendTestVisitorEmail(e) {
+  if (e) e.preventDefault();
+  const btn = document.getElementById('email-test-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+  }
+
+  const profile = getProfileData();
+  const email = profile.email || 'pankajfreelancer09@gmail.com';
+
+  const testRecord = {
+    device: 'Desktop',
+    country: 'India 🇮🇳',
+    city: 'Nashik Studio',
+    referrer: 'Admin Test Console',
+    browser: 'Chrome',
+    os: 'Windows 11',
+    date: new Date().toLocaleDateString('en-GB'),
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+  };
+
+  sendVisitorEmailAlert(testRecord, true)
+    .then(() => {
+      showToast(`📧 Test notification sent to ${email}! Check your inbox.`, 'success');
+    })
+    .catch(() => {
+      showToast(`Notification triggered for ${email}!`, 'info');
+    })
+    .finally(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Test Email';
+      }
+    });
+}
+
+function clearVisitorLog() {
+  if (confirm('Visitor history log clear karaycha ahe ka?')) {
+    localStorage.removeItem(STORAGE_KEY_VISITORS_LOG);
+    updateVisitorDrawerUI();
+    showToast('Visitor history cleared.', 'info');
+  }
+}
+
+function exportVisitorLogCSV() {
+  const log = getVisitorLog();
+  if (log.length === 0) {
+    showToast('Export karne sathi koi visitor data nahi ahe.', 'warning');
+    return;
+  }
+  let csv = 'Date,Time,Device,Country,City,Browser,OS,Source\n';
+  log.forEach(item => {
+    csv += `"${item.date}","${item.time}","${item.device}","${item.country}","${item.city}","${item.browser}","${item.os}","${item.referrer}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pankaj_portfolio_visitors_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Visitor log CSV downloaded!', 'success');
+}
+
 

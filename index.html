@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 
@@ -28,6 +28,9 @@
         </button>
         <button class="admin-tool-btn highlight" onclick="exportDataFile()" title="Export updated artworks_data.js file to disk">
           <i class="fa-solid fa-download"></i> Export Data File
+        </button>
+        <button class="admin-tool-btn highlight" onclick="toggleVisitorDrawer()" title="View Real-Time Visitor Traffic, Devices & Activity Logs">
+          <i class="fa-solid fa-chart-line"></i> Visitors (<span id="admin-toolbar-visitor-count">0</span>)
         </button>
         <button class="admin-tool-btn" onclick="openProfileModal()" title="Edit Contact Info, Phone/WhatsApp, LinkedIn & Bio">
           <i class="fa-solid fa-address-card"></i> Contact & Bio
@@ -821,6 +824,74 @@
     </div>
   </div>
 
+  <!-- Admin Visitor Side Drawer Backdrop -->
+  <div id="visitor-drawer-backdrop" class="visitor-drawer-backdrop" onclick="closeVisitorDrawer()"></div>
+
+  <!-- Admin Visitor Side Drawer -->
+  <aside id="visitor-drawer" class="visitor-drawer" aria-hidden="true">
+    <div class="visitor-drawer-header">
+      <div class="visitor-drawer-title-group">
+        <div class="visitor-drawer-icon"><i class="fa-solid fa-chart-simple"></i></div>
+        <div>
+          <h3 class="visitor-drawer-title">Visitor Analytics & Logs</h3>
+          <p class="visitor-drawer-sub">Live recruiter & client visit logs</p>
+        </div>
+      </div>
+      <button class="visitor-drawer-close" onclick="closeVisitorDrawer()" title="Close Drawer">&times;</button>
+    </div>
+
+    <div class="visitor-drawer-body">
+      <!-- Metric Highlights -->
+      <div class="visitor-metric-grid">
+        <div class="visitor-metric-card">
+          <div class="metric-num" id="vd-total-visits">0</div>
+          <div class="metric-label">Total Visits</div>
+        </div>
+        <div class="visitor-metric-card">
+          <div class="metric-num" id="vd-today-visits">0</div>
+          <div class="metric-label">Today's Visits</div>
+        </div>
+        <div class="visitor-metric-card">
+          <div class="metric-num" id="vd-device-ratio">--</div>
+          <div class="metric-label">Mobile / Desktop</div>
+        </div>
+      </div>
+
+      <!-- Email Notification Status Banner -->
+      <div class="visitor-email-banner">
+        <div class="email-banner-info">
+          <div class="email-banner-title">
+            <i class="fa-solid fa-envelope-circle-check"></i> Email Alerts Active
+          </div>
+          <div class="email-banner-sub">Alerts to: <strong>pankajfreelancer09@gmail.com</strong></div>
+        </div>
+        <button class="email-test-btn" id="email-test-btn" onclick="sendTestVisitorEmail(event)" title="Send a test notification email right now">
+          <i class="fa-solid fa-paper-plane"></i> Test Email
+        </button>
+      </div>
+
+      <!-- Visitor Activity List -->
+      <div class="visitor-list-header">
+        <span class="visitor-list-title"><i class="fa-solid fa-timeline"></i> Recent Visits Log</span>
+        <div class="visitor-header-actions">
+          <button class="visitor-tool-sm" onclick="exportVisitorLogCSV()" title="Download CSV Log"><i class="fa-solid fa-file-csv"></i> Export</button>
+          <button class="visitor-clear-btn" onclick="clearVisitorLog()" title="Clear history">Clear</button>
+        </div>
+      </div>
+
+      <div class="visitor-timeline" id="visitor-timeline">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- Floating Side Trigger for Admin (Right Edge) -->
+  <div id="admin-visitor-side-pill" class="admin-visitor-side-pill" style="display: none;" onclick="toggleVisitorDrawer()" title="View Real-Time Visitor Analytics">
+    <i class="fa-solid fa-users-viewfinder"></i>
+    <span>Visitors</span>
+    <span class="visitor-pill-badge" id="visitor-pill-badge">0</span>
+  </div>
+
   <!-- Floating Download PDF Action Button -->
   <button class="floating-pdf-btn" onclick="openPdfModal()" title="Download PDF Portfolio">
     <i class="fa-solid fa-file-pdf"></i>
@@ -828,7 +899,7 @@
   </button>
 
   <!-- Scripts -->
-  <script src="artworks_data.js?v=20"></script>
-  <script src="app.js?v=20"></script>
+  <script src="artworks_data.js?v=21"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
