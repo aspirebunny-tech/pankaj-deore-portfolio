@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v17';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v18';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -65,26 +65,30 @@ const CATEGORY_FOLDERS = {
   'featured': 'concept art'
 };
 
-// Relative image path helper
+// Relative image path helper - loads web-optimized fast images
 function getArtworkUrl(src) {
   if (!src) return '';
   if (window.LOCAL_MEDIA_BLOBS && window.LOCAL_MEDIA_BLOBS[src]) {
     return window.LOCAL_MEDIA_BLOBS[src];
   }
-  // Automatic HEIC to JPG fallback for browser compatibility
-  if (src.endsWith('.HEIC') || src.endsWith('.heic')) {
-    src = src.replace(/\.heic$/i, '.jpg');
+  if (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+    return src;
+  }
+  // Automatic web-optimized JPG path from web_images/
+  let webSrc = src.replace(/\.(png|jpg|jpeg|heic|webp)$/i, '.jpg');
+  return encodeURI('./web_images/' + webSrc);
+}
+
+// Fallback to original full-resolution media if needed
+function getFullArtworkUrl(src) {
+  if (!src) return '';
+  if (window.LOCAL_MEDIA_BLOBS && window.LOCAL_MEDIA_BLOBS[src]) {
+    return window.LOCAL_MEDIA_BLOBS[src];
   }
   if (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
     return src;
   }
-  let base = './';
-  const path = window.location.pathname.toLowerCase();
-  // Only use parent path if running locally from the dev portfolio subfolder
-  if (window.location.protocol === 'file:' && path.includes('/goal/portfolio/')) {
-    base = '../../protfolio data/';
-  }
-  return encodeURI(base + src);
+  return encodeURI('./' + src);
 }
 
 function getSpanSizeName(cols, rows) {
@@ -663,7 +667,7 @@ function renderGallery() {
                  src="${mediaUrl}" 
                  alt="${escapeHtml(art.title)}" 
                  loading="lazy" 
-                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/121722/00e5ff?text=${encodeURIComponent(art.title)}';" />
+                 onerror="this.onerror=null; this.src='${getFullArtworkUrl(art.src)}';" />
           `}
 
           <!-- Featured Star Indicator (Non-featured tabs) -->
