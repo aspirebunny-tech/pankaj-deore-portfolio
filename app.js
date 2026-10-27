@@ -20,6 +20,7 @@ const DEFAULT_ADMIN = {
 };
 
 const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v21';
+const STORAGE_KEY_DELETED = 'pankaj_portfolio_deleted_ids_v2';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -117,30 +118,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load artworks from localStorage or fallback to ARTWORKS_DATA
 function loadArtworks() {
+  const deletedIds = (function() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED) || '[]'); } catch(e) { return []; }
+  })();
+
   const cached = localStorage.getItem(STORAGE_KEY_ARTWORKS);
   if (cached) {
     try {
       artworks = JSON.parse(cached);
-      // Automatically merge any newly added master artworks from ARTWORKS_DATA
-      if (Array.isArray(ARTWORKS_DATA)) {
-        ARTWORKS_DATA.forEach(masterItem => {
-          const existingIdx = artworks.findIndex(a => a.id === masterItem.id || (a.filename && a.filename.toLowerCase() === masterItem.filename.toLowerCase()));
-          if (existingIdx === -1) {
-            artworks.unshift(masterItem);
-          } else {
-            // Update to fix any broken src or placeholder from older caches
-            if (masterItem.id === 98 || masterItem.id === 99) {
-              artworks[existingIdx] = { ...artworks[existingIdx], ...masterItem };
-            }
-          }
-        });
-      }
     } catch (e) {
       console.error('Error parsing stored artworks, resetting to default.', e);
       artworks = Array.isArray(ARTWORKS_DATA) ? [...ARTWORKS_DATA] : [];
     }
   } else {
     artworks = Array.isArray(ARTWORKS_DATA) ? [...ARTWORKS_DATA] : [];
+  }
+
+  // Filter out any permanently deleted artworks
+  if (deletedIds.length > 0) {
+    artworks = artworks.filter(a => !deletedIds.includes(a.id));
   }
 
   // Self-healing: repair any broken image file extensions without touching custom user layout/spans
@@ -1242,6 +1238,11 @@ function handleDeleteArtworkBtn() {
 
   if (confirm(`Kya tum sach me "${art.title}" ko permanently delete karna chahte ho?`)) {
     artworks = artworks.filter(a => a.id !== artId);
+    try {
+      const del = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED) || '[]');
+      if (!del.includes(artId)) del.push(artId);
+      localStorage.setItem(STORAGE_KEY_DELETED, JSON.stringify(del));
+    } catch (e) {}
     saveArtworksToStorage();
     closeArtworkEditor();
     renderGallery();
@@ -1410,6 +1411,7 @@ function exportDataFile() {
 function confirmResetDefaults() {
   if (confirm('Kya tum saare edits aur changes reset karke original artworks list par wapas aana chahte ho?')) {
     localStorage.removeItem(STORAGE_KEY_ARTWORKS);
+    localStorage.removeItem(STORAGE_KEY_DELETED);
     artworks = Array.isArray(ARTWORKS_DATA) ? [...ARTWORKS_DATA] : [];
     updateCategoryCounts();
     updateHiddenCountBadge();
