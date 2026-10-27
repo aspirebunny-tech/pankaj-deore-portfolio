@@ -74,9 +74,9 @@ function getArtworkUrl(src) {
   if (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
     return src;
   }
-  // Automatic web-optimized JPG path from web_images/
+  // Automatic web-optimized JPG path from gallery-optimized/
   let webSrc = src.replace(/\.(png|jpg|jpeg|heic|webp)$/i, '.jpg');
-  return encodeURI('./web_images/' + webSrc);
+  return encodeURI('./gallery-optimized/' + webSrc);
 }
 
 // Fallback to original full-resolution media if needed
