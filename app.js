@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v11';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v12';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -136,16 +136,6 @@ function loadArtworks() {
   } else {
     artworks = Array.isArray(ARTWORKS_DATA) ? [...ARTWORKS_DATA] : [];
   }
-
-  // Strict Deduplication Safeguard (Never allow any duplicate image)
-  const seenBaseFiles = new Set();
-  artworks = artworks.filter(art => {
-    if (!art || !art.src) return false;
-    const base = art.src.split('/').pop().toLowerCase().trim();
-    if (seenBaseFiles.has(base)) return false;
-    seenBaseFiles.add(base);
-    return true;
-  });
 
   // Self-healing: repair any broken image file extensions without touching custom user layout/spans
   artworks.forEach(art => {
