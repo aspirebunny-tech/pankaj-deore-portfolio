@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v18';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v19';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
 const SESSION_KEY_LOGGED_IN = 'pankaj_admin_session';
@@ -76,6 +76,9 @@ function getArtworkUrl(src) {
   }
   // Automatic web-optimized JPG path from gallery-optimized/
   let webSrc = src.replace(/\.(png|jpg|jpeg|heic|webp)$/i, '.jpg');
+  if (window.location.hostname.includes('github.io')) {
+    return encodeURI('https://raw.githubusercontent.com/aspirebunny-tech/pankaj-deore-portfolio/main/gallery-optimized/' + webSrc);
+  }
   return encodeURI('./gallery-optimized/' + webSrc);
 }
 
