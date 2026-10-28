@@ -126,6 +126,16 @@ function loadArtworks() {
   if (cached) {
     try {
       artworks = JSON.parse(cached);
+      // Merge brand new artworks from master ARTWORKS_DATA unless explicitly deleted by user
+      if (Array.isArray(ARTWORKS_DATA)) {
+        ARTWORKS_DATA.forEach(masterItem => {
+          const isDeleted = deletedIds.includes(masterItem.id);
+          const alreadyExists = artworks.some(a => a.id === masterItem.id);
+          if (!isDeleted && !alreadyExists) {
+            artworks.unshift(masterItem);
+          }
+        });
+      }
     } catch (e) {
       console.error('Error parsing stored artworks, resetting to default.', e);
       artworks = Array.isArray(ARTWORKS_DATA) ? [...ARTWORKS_DATA] : [];
