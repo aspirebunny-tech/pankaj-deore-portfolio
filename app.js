@@ -19,7 +19,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v21';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v22';
 const STORAGE_KEY_DELETED = 'pankaj_portfolio_deleted_ids_v2';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
