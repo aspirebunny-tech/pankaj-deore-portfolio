@@ -2006,7 +2006,10 @@ async function saveChangesToGitHub() {
 
     if (!putRes.ok) {
       const errJson = await putRes.json();
-      throw new Error(errJson.message || 'GitHub commit failed');
+      if (putRes.status === 403 || putRes.status === 401) {
+        localStorage.removeItem(STORAGE_KEY_GITHUB_TOKEN);
+      }
+      throw new Error((errJson.message || 'GitHub commit failed') + '. Token reset ho gaya hai.');
     }
 
     showToast('Success! Changes permanently GitHub par save ho gaye! 30 seconds me har jagah live dikhenge.', 'success');
