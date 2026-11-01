@@ -5,7 +5,11 @@
 // Global State
 let artworks = [];
 let currentCategory = 'featured';
+let currentSubSeries = 'all';
 let currentSearch = '';
+let readerPages = [];
+let currentReaderIndex = 0;
+let currentReaderMode = 'book';
 let activeArtworks = [];
 let currentModalIndex = 0;
 let showHiddenArtworks = false;
@@ -19,7 +23,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v22';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v23';
 const STORAGE_KEY_DELETED = 'pankaj_portfolio_deleted_ids_v2';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
@@ -583,7 +587,43 @@ function setCategory(catId, updateHash = true) {
     titleEl.textContent = CATEGORY_NAMES[catId] || 'Artworks';
   }
 
+  // Toggle Personal Series Sub-Nav
+  const seriesNav = document.getElementById('personal-series-nav');
+  if (seriesNav) {
+    if (catId === 'personal-series') {
+      seriesNav.style.display = 'block';
+      updateSubSeriesCounts();
+    } else {
+      seriesNav.style.display = 'none';
+      currentSubSeries = 'all';
+    }
+  }
+
   renderGallery();
+}
+
+function setSubSeries(subId) {
+  currentSubSeries = subId;
+  document.querySelectorAll('.sub-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.subseries === subId);
+  });
+  renderGallery();
+}
+
+function updateSubSeriesCounts() {
+  const psArtworks = artworks.filter(a => a.category === 'personal-series' && !a.hidden);
+  const countAll = psArtworks.length;
+  const countS1 = psArtworks.filter(a => a.sub_series === 'bas-yuhi-s1').length;
+  const countOrigin = psArtworks.filter(a => a.sub_series === 'origin-bas-yuhi').length;
+  const countParallel = psArtworks.filter(a => a.sub_series === 'we-are-parallel').length;
+  const countSpecial = psArtworks.filter(a => a.sub_series === 'special-random' || !a.sub_series).length;
+
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('count-sub-all', countAll);
+  setEl('count-sub-s1', countS1);
+  setEl('count-sub-origin', countOrigin);
+  setEl('count-sub-parallel', countParallel);
+  setEl('count-sub-special', countSpecial);
 }
 
 // ==========================================================================
@@ -601,6 +641,11 @@ function filterArtworks() {
       ? art.featured 
       : (art.category === currentCategory);
 
+    // Sub-series filter for Personal Series
+    const matchesSubSeries = (currentCategory !== 'personal-series' || currentSubSeries === 'all')
+      ? true
+      : (art.sub_series === currentSubSeries);
+
     const q = currentSearch.trim().toLowerCase();
     const matchesSearch = !q || 
       (art.title && art.title.toLowerCase().includes(q)) || 
@@ -610,7 +655,7 @@ function filterArtworks() {
       (art.client && art.client.toLowerCase().includes(q)) ||
       (art.tools && art.tools.toLowerCase().includes(q));
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSubSeries && matchesSearch;
   });
 }
 
@@ -2021,5 +2066,144 @@ async function saveChangesToGitHub() {
       saveBtn.innerHTML = originalBtnHtml;
       saveBtn.disabled = false;
     }
+  }
+}
+
+
+// ==========================================================================
+// INTERACTIVE COMIC / BOOK SERIES READER (Bas Yuhi Season 1)
+// ==========================================================================
+
+function openSeriesReader(startPage = 0) {
+  // Collect all Bas Yuhi Season 1 pages in order
+  readerPages = artworks
+    .filter(a => a.category === 'personal-series' && a.sub_series === 'bas-yuhi-s1')
+    .sort((a, b) => (a.series_page || a.id) - (b.series_page || b.id));
+
+  if (!readerPages || readerPages.length === 0) {
+    alert("Season 1 pages loading...");
+    return;
+  }
+
+  const modal = document.getElementById('series-reader-modal');
+  if (!modal) return;
+
+  // Build Filmstrip Thumbnails
+  const filmstrip = document.getElementById('reader-filmstrip');
+  if (filmstrip) {
+    filmstrip.innerHTML = readerPages.map((art, idx) => `
+      <div class="filmstrip-thumb ${idx === startPage ? 'active' : ''}" data-page="${idx}" onclick="setReaderPage(${idx})" title="Page ${idx + 1}: ${art.title}">
+        <img src="${getArtworkUrl(art.src)}" alt="Page ${idx + 1}" />
+        <span class="thumb-number">${idx + 1}</span>
+      </div>
+    `).join('');
+  }
+
+  // Build Scroll Stage (Continuous Webtoon Scroll)
+  const scrollStage = document.getElementById('reader-scroll-stage');
+  if (scrollStage) {
+    scrollStage.innerHTML = readerPages.map((art, idx) => `
+      <div class="reader-scroll-item" id="scroll-page-${idx}">
+        <span class="scroll-page-tag">— Page ${idx + 1} of ${readerPages.length} —</span>
+        <img src="${getFullArtworkUrl(art.src)}" alt="Page ${idx + 1}: ${art.title}" loading="lazy" />
+      </div>
+    `).join('');
+  }
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setReaderPage(startPage);
+
+  // Keyboard navigation
+  window.addEventListener('keydown', handleReaderKeyDown);
+}
+
+function closeSeriesReader() {
+  const modal = document.getElementById('series-reader-modal');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  window.removeEventListener('keydown', handleReaderKeyDown);
+}
+
+function setReaderPage(idx) {
+  if (!readerPages || readerPages.length === 0) return;
+  if (idx < 0) idx = 0;
+  if (idx >= readerPages.length) idx = readerPages.length - 1;
+  currentReaderIndex = idx;
+
+  const currentArt = readerPages[idx];
+  const imgEl = document.getElementById('reader-main-img');
+  const indicator = document.getElementById('reader-page-indicator');
+
+  if (imgEl) {
+    imgEl.style.opacity = '0.3';
+    imgEl.src = getFullArtworkUrl(currentArt.src);
+    imgEl.onload = () => { imgEl.style.opacity = '1'; };
+  }
+
+  if (indicator) {
+    indicator.textContent = `Page ${idx + 1} of ${readerPages.length}`;
+  }
+
+  // Update filmstrip active state
+  document.querySelectorAll('.filmstrip-thumb').forEach((thumb, i) => {
+    thumb.classList.toggle('active', i === idx);
+    if (i === idx) {
+      thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  });
+
+  // If in scroll mode, scroll to that page
+  if (currentReaderMode === 'scroll') {
+    const scrollTarget = document.getElementById(`scroll-page-${idx}`);
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function nextReaderPage() {
+  if (currentReaderIndex < readerPages.length - 1) {
+    setReaderPage(currentReaderIndex + 1);
+  }
+}
+
+function prevReaderPage() {
+  if (currentReaderIndex > 0) {
+    setReaderPage(currentReaderIndex - 1);
+  }
+}
+
+function setReaderMode(mode) {
+  currentReaderMode = mode;
+  const singleStage = document.getElementById('reader-single-stage');
+  const scrollStage = document.getElementById('reader-scroll-stage');
+  const filmstrip = document.getElementById('reader-filmstrip');
+  const btnBook = document.getElementById('reader-mode-book');
+  const btnScroll = document.getElementById('reader-mode-scroll');
+
+  if (mode === 'scroll') {
+    if (singleStage) singleStage.style.display = 'none';
+    if (scrollStage) scrollStage.style.display = 'flex';
+    if (filmstrip) filmstrip.style.display = 'none';
+    if (btnBook) btnBook.classList.remove('active');
+    if (btnScroll) btnScroll.classList.add('active');
+    const scrollTarget = document.getElementById(`scroll-page-${currentReaderIndex}`);
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    if (singleStage) singleStage.style.display = 'flex';
+    if (scrollStage) scrollStage.style.display = 'none';
+    if (filmstrip) filmstrip.style.display = 'flex';
+    if (btnBook) btnBook.classList.add('active');
+    if (btnScroll) btnScroll.classList.remove('active');
+    setReaderPage(currentReaderIndex);
+  }
+}
+
+function handleReaderKeyDown(e) {
+  if (e.key === 'Escape') {
+    closeSeriesReader();
+  } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+    nextReaderPage();
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    prevReaderPage();
   }
 }
