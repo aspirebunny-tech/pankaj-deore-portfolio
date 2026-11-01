@@ -23,7 +23,7 @@ const DEFAULT_ADMIN = {
   pass: 'pankaj123'
 };
 
-const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v23';
+const STORAGE_KEY_ARTWORKS = 'pankaj_portfolio_artworks_v24';
 const STORAGE_KEY_DELETED = 'pankaj_portfolio_deleted_ids_v2';
 const STORAGE_KEY_AUTH = 'pankaj_admin_credentials_v1';
 const STORAGE_KEY_PROFILE = 'pankaj_portfolio_profile_v1';
@@ -587,19 +587,22 @@ function setCategory(catId, updateHash = true) {
     titleEl.textContent = CATEGORY_NAMES[catId] || 'Artworks';
   }
 
-  // Toggle Personal Series Sub-Nav
+  const artGrid = document.getElementById('art-grid');
+  const hubEl = document.getElementById('personal-series-hub');
   const seriesNav = document.getElementById('personal-series-nav');
-  if (seriesNav) {
-    if (catId === 'personal-series') {
-      seriesNav.style.display = 'block';
-      updateSubSeriesCounts();
-    } else {
-      seriesNav.style.display = 'none';
-      currentSubSeries = 'all';
-    }
-  }
+  if (seriesNav) seriesNav.style.display = 'none';
 
-  renderGallery();
+  if (catId === 'personal-series') {
+    if (artGrid) artGrid.style.display = 'none';
+    if (hubEl) {
+      hubEl.style.display = 'block';
+      renderPersonalSeriesHub();
+    }
+  } else {
+    if (artGrid) artGrid.style.display = 'grid';
+    if (hubEl) hubEl.style.display = 'none';
+    renderGallery();
+  }
 }
 
 function setSubSeries(subId) {
@@ -2205,5 +2208,290 @@ function handleReaderKeyDown(e) {
     nextReaderPage();
   } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
     prevReaderPage();
+  }
+}
+
+
+
+// ==========================================================================
+// DEDICATED PERSONAL SERIES MULTI-HUB & INLINE BOOK READER
+// ==========================================================================
+
+let inlinePageIndex = 0;
+let inlinePagesList = [];
+
+function renderPersonalSeriesHub() {
+  const hub = document.getElementById('personal-series-hub');
+  if (!hub) return;
+
+  // Extract Series Data
+  const s1Pages = artworks
+    .filter(a => a.category === 'personal-series' && a.sub_series === 'bas-yuhi-s1')
+    .sort((a, b) => (a.series_page || a.id) - (b.series_page || b.id));
+
+  inlinePagesList = s1Pages;
+
+  const originPages = artworks
+    .filter(a => a.category === 'personal-series' && a.sub_series === 'origin-bas-yuhi')
+    .sort((a, b) => (a.series_page || a.id) - (b.series_page || b.id));
+
+  const parallelArt = artworks
+    .filter(a => a.category === 'personal-series' && a.sub_series === 'we-are-parallel');
+
+  const specialArt = artworks
+    .filter(a => a.category === 'personal-series' && (a.sub_series === 'special-random' || (!a.sub_series && !['bas-yuhi-s1','origin-bas-yuhi','we-are-parallel'].includes(a.sub_series))));
+
+  const totalCount = s1Pages.length + originPages.length + parallelArt.length + specialArt.length;
+  const countEl = document.getElementById('view-count');
+  if (countEl) {
+    countEl.textContent = `Showing ${totalCount} Artworks across 4 Specialized Series`;
+  }
+
+  hub.innerHTML = `
+    <!-- Top Sticky Series Switcher Strip -->
+    <div class="series-hub-nav">
+      <a href="#sec-bas-yuhi" class="hub-nav-pill active">
+        <i class="fa-solid fa-book-bookmark"></i> Bas Yuhi: Season 1 (${s1Pages.length} Pages)
+      </a>
+      <a href="#sec-origin-yuhi" class="hub-nav-pill">
+        <i class="fa-solid fa-sparkles"></i> Origin of Bas Yuhi (${originPages.length} Pages Lore)
+      </a>
+      <a href="#sec-parallel" class="hub-nav-pill">
+        <i class="fa-solid fa-masks-theater"></i> We Are Parallel To Each Other (${parallelArt.length} Works)
+      </a>
+      <a href="#sec-special" class="hub-nav-pill">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Artist Sketchbook & Raw Art (${specialArt.length} Works)
+      </a>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 1: BAS YUHI SERIES (SEASON 1) - INTERACTIVE BOOK READER     -->
+    <!-- ==================================================================== -->
+    <section id="sec-bas-yuhi" class="series-showcase-section">
+      <div class="series-section-header">
+        <div class="series-badge"><i class="fa-solid fa-book-open"></i> Comic Series · Season 1</div>
+        <h2 class="series-main-title">Bas Yuhi: Season 1</h2>
+        <div class="series-quote-box">
+          <p class="quote-text">
+            "Sometimes, we start creating without a reason. No plan, no message, just a quiet pull from inside. That's how 'Bas Yuhi' began. This is the story of a boy—the only human in a world where no other humans exist. He doesn't know how he got there, or why he's alone. All he knows is that a group of birds always flies around him. They never leave, and he never questions them. As he walks through this strange and silent jungle, he meets beings unlike anything we've seen. They don't speak like us, but somehow... they understand. They share a moment, a memory, a feeling. And he listens—because sometimes, listening is all you can do. This series isn't about where he's going. It's not about where he's been. It's about being present, even when you're lost. It's about continuing, bas yuhi..."
+          </p>
+          <span class="quote-author">— Pankaj Yadav Deore</span>
+        </div>
+
+        <div class="series-action-bar">
+          <button class="btn-primary-action" onclick="openSeriesReader(inlinePageIndex)">
+            <i class="fa-solid fa-expand"></i> Open Fullscreen Reader
+          </button>
+          <a href="https://drive.google.com/file/d/1cvGyP-ZQWNnwYs9wz8axWsh5ZvWCkN2o/view?usp=drive_link" target="_blank" rel="noopener" class="btn-secondary-action">
+            <i class="fa-brands fa-google-drive"></i> Open Original PDF on Drive
+          </a>
+          <button class="btn-toggle-action" onclick="toggleS1GridView()">
+            <i class="fa-solid fa-table-cells-large"></i> <span id="toggle-s1-grid-text">View All 12 Pages In Grid</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- IN-PAGE INTERACTIVE BOOK READER -->
+      <div class="inline-book-reader-container">
+        <div class="book-reader-viewframe">
+          <button class="inline-nav-btn prev" onclick="prevInlinePage()" title="Previous Page (Left Arrow)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <div class="inline-page-display" onclick="nextInlinePage()" title="Click page to advance">
+            <img id="inline-current-img" src="${s1Pages.length > 0 ? getArtworkUrl(s1Pages[0].src) : ''}" alt="Bas Yuhi Page" />
+            <div class="page-meta-overlay">
+              <span id="inline-page-num" class="page-num-pill">Page 1 of ${s1Pages.length}</span>
+              <span id="inline-page-title" class="page-title-text">${s1Pages.length > 0 ? s1Pages[0].title : ''}</span>
+            </div>
+          </div>
+
+          <button class="inline-nav-btn next" onclick="nextInlinePage()" title="Next Page (Right Arrow)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Scrubber Filmstrip -->
+        <div class="inline-filmstrip-strip">
+          ${s1Pages.map((art, idx) => `
+            <div class="inline-thumb-card ${idx === 0 ? 'active' : ''}" data-idx="${idx}" onclick="setInlinePage(${idx})" title="${art.title}">
+              <img src="${getArtworkUrl(art.src)}" alt="Page ${idx + 1}" />
+              <span class="thumb-badge">${idx + 1}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Expandable Sequential Grid of All 12 Pages -->
+      <div id="s1-pages-grid" class="s1-pages-grid" style="display: none;">
+        <h4 class="grid-subheading"><i class="fa-solid fa-list-ol"></i> Sequential Pages (01 to 12)</h4>
+        <div class="pages-gallery-grid">
+          ${s1Pages.map((art, idx) => `
+            <div class="page-card" onclick="openSeriesReader(${idx})">
+              <div class="page-card-media">
+                <img src="${getArtworkUrl(art.src)}" alt="${art.title}" loading="lazy" />
+                <span class="page-card-num">Page ${idx + 1}</span>
+              </div>
+              <div class="page-card-info">
+                <h5>${art.title}</h5>
+                <p>${art.story || ''}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 2: ORIGIN OF BAS YUHI (ILLUSTRATED 2-PAGE SPREAD)           -->
+    <!-- ==================================================================== -->
+    <section id="sec-origin-yuhi" class="series-showcase-section origin-section">
+      <div class="series-section-header">
+        <div class="series-badge gold"><i class="fa-solid fa-sparkles"></i> Illustrated Lore · 2-Page Storybook</div>
+        <h2 class="series-main-title">Origin of Bas Yuhi: The Primordial Child</h2>
+        <p class="series-subtitle">The mythic dawn of existence, the awakening in the astral void, and the creation of the living realm.</p>
+      </div>
+
+      <div class="storybook-double-spread">
+        ${originPages.map((art, idx) => `
+          <div class="storybook-page-card" onclick="openOriginModal(${art.id})">
+            <div class="storybook-page-media">
+              <img src="${getArtworkUrl(art.src)}" alt="${art.title}" />
+              <div class="storybook-page-tag">${idx === 0 ? 'Page 01 · Astral Awakening' : 'Page 02 · The Living Realm'}</div>
+            </div>
+            <div class="storybook-page-body">
+              <h3 class="storybook-title">${art.title}</h3>
+              <p class="storybook-lore-text">${art.story || ''}</p>
+              <div class="storybook-footer">
+                <span class="tools-tag"><i class="fa-solid fa-paintbrush"></i> ${art.tools || 'Traditional Watercolor & Ink'}</span>
+                <span class="inspect-tag"><i class="fa-solid fa-magnifying-glass-plus"></i> View Master Art</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 3: WE ARE PARALLEL TO EACH OTHER                             -->
+    <!-- ==================================================================== -->
+    <section id="sec-parallel" class="series-showcase-section parallel-section">
+      <div class="series-section-header">
+        <div class="series-badge blue"><i class="fa-solid fa-masks-theater"></i> Graphic Novel Narrative</div>
+        <h2 class="series-main-title">We Are Parallel To Each Other</h2>
+        <p class="series-subtitle">Exploring simultaneous human lives, urban isolation during lockdowns, and explosive festive connections.</p>
+      </div>
+
+      <div class="parallel-gallery-grid">
+        ${parallelArt.map((art, idx) => `
+          <div class="parallel-card ${idx === 0 ? 'hero-parallel' : ''}" onclick="openOriginModal(${art.id})">
+            <div class="parallel-media">
+              <img src="${getArtworkUrl(art.src)}" alt="${art.title}" loading="lazy" />
+              <div class="parallel-overlay-badge">${art.title}</div>
+            </div>
+            <div class="parallel-info">
+              <h4>${art.title}</h4>
+              <p>${art.story || ''}</p>
+              <span class="tools-tag"><i class="fa-solid fa-pen-nib"></i> ${art.tools || 'Pen & Ink, Digital Watercolor'}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 4: ARTIST SKETCHBOOK & SPECIAL RAW EXPLORATIONS             -->
+    <!-- ==================================================================== -->
+    <section id="sec-special" class="series-showcase-section special-section">
+      <div class="series-section-header">
+        <div class="series-badge purple"><i class="fa-solid fa-wand-magic-sparkles"></i> Raw Explorations · Studio Desk</div>
+        <h2 class="series-main-title">Artist Sketchbook & Special Moments</h2>
+        <p class="series-subtitle">Candid humor, father-son moments, and raw character explorations direct from the sketchbook.</p>
+      </div>
+
+      <div class="sketchbook-deck-grid">
+        ${specialArt.map((art, idx) => `
+          <div class="sketchbook-item-card" onclick="openOriginModal(${art.id})">
+            <div class="tape-strip"></div>
+            <div class="sketchbook-media">
+              <img src="${getArtworkUrl(art.src)}" alt="${art.title}" loading="lazy" />
+            </div>
+            <div class="sketchbook-caption">
+              <h5>${art.title}</h5>
+              <p>${art.story || 'Spontaneous sketchbook exploration capturing raw personality and unscripted life moments.'}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+
+  // Attach nav link smooth scrolling
+  hub.querySelectorAll('.hub-nav-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      hub.querySelectorAll('.hub-nav-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+}
+
+function setInlinePage(idx) {
+  if (!inlinePagesList || inlinePagesList.length === 0) return;
+  if (idx < 0) idx = 0;
+  if (idx >= inlinePagesList.length) idx = inlinePagesList.length - 1;
+  inlinePageIndex = idx;
+
+  const currentArt = inlinePagesList[idx];
+  const imgEl = document.getElementById('inline-current-img');
+  const numEl = document.getElementById('inline-page-num');
+  const titleEl = document.getElementById('inline-page-title');
+
+  if (imgEl) {
+    imgEl.style.opacity = '0.3';
+    imgEl.src = getArtworkUrl(currentArt.src);
+    imgEl.onload = () => { imgEl.style.opacity = '1'; };
+  }
+
+  if (numEl) numEl.textContent = `Page ${idx + 1} of ${inlinePagesList.length}`;
+  if (titleEl) titleEl.textContent = currentArt.title;
+
+  document.querySelectorAll('.inline-thumb-card').forEach((card, i) => {
+    card.classList.toggle('active', i === idx);
+    if (i === idx) {
+      card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  });
+}
+
+function nextInlinePage() {
+  if (inlinePageIndex < inlinePagesList.length - 1) {
+    setInlinePage(inlinePageIndex + 1);
+  }
+}
+
+function prevInlinePage() {
+  if (inlinePageIndex > 0) {
+    setInlinePage(inlinePageIndex - 1);
+  }
+}
+
+function toggleS1GridView() {
+  const gridEl = document.getElementById('s1-pages-grid');
+  const textEl = document.getElementById('toggle-s1-grid-text');
+  if (!gridEl) return;
+  const isHidden = (gridEl.style.display === 'none');
+  gridEl.style.display = isHidden ? 'block' : 'none';
+  if (textEl) {
+    textEl.textContent = isHidden ? 'Hide Grid View' : 'View All 12 Pages In Grid';
+  }
+  if (isHidden) {
+    gridEl.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function openOriginModal(artId) {
+  const idx = artworks.findIndex(a => a.id === artId);
+  if (idx !== -1) {
+    openModal(idx);
   }
 }

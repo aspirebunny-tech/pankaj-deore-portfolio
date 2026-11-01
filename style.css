@@ -2830,3 +2830,734 @@ body {
   .reader-nav-btn.prev { left: 0.5rem; }
   .reader-nav-btn.next { right: 0.5rem; }
 }
+
+
+/* ==========================================================================
+   PERSONAL SERIES MULTI-HUB & INLINE BOOK READER STYLING
+   ========================================================================== */
+
+.personal-series-hub {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Sticky Hub Nav Switcher */
+.series-hub-nav {
+  position: sticky;
+  top: 75px;
+  z-index: 120;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  background: rgba(10, 14, 25, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0.85rem 1.4rem;
+  border-radius: 40px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.15);
+  margin-bottom: 2.5rem;
+}
+
+.hub-nav-pill {
+  font-family: 'Outfit', sans-serif;
+  text-decoration: none;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.55rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hub-nav-pill:hover {
+  background: rgba(0, 229, 255, 0.15);
+  color: #fff;
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.hub-nav-pill.active {
+  background: linear-gradient(135deg, #00e5ff 0%, #0099cc 100%);
+  color: #050811;
+  border-color: #00e5ff;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.5);
+}
+
+/* SECTION CONTAINER */
+.series-showcase-section {
+  background: rgba(13, 17, 28, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem 2.2rem;
+  margin-bottom: 4rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+  scroll-margin-top: 150px;
+}
+
+.series-section-header {
+  margin-bottom: 2rem;
+}
+
+.series-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  margin-bottom: 0.75rem;
+}
+
+.series-badge.gold {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.4);
+}
+
+.series-badge.blue {
+  background: rgba(68, 138, 255, 0.15);
+  color: #82b1ff;
+  border-color: rgba(68, 138, 255, 0.4);
+}
+
+.series-badge.purple {
+  background: rgba(186, 104, 200, 0.15);
+  color: #e1bee7;
+  border-color: rgba(186, 104, 200, 0.4);
+}
+
+.series-main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.series-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.series-quote-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--primary);
+  padding: 1.25rem 1.75rem;
+  border-radius: 0 16px 16px 0;
+  margin: 1.25rem 0 1.5rem 0;
+}
+
+.quote-text {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: #d8e2f0;
+  font-style: italic;
+}
+
+.quote-author {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: normal;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+}
+
+.series-action-bar {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 1.25rem;
+}
+
+.btn-primary-action {
+  background: linear-gradient(135deg, #00e5ff 0%, #0099cc 100%);
+  color: #050811;
+  border: none;
+  border-radius: 30px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-primary-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.6);
+}
+
+.btn-secondary-action {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-radius: 30px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease;
+}
+
+.btn-secondary-action:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-toggle-action {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  border-radius: 30px;
+  padding: 0.65rem 1.3rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-action:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   IN-PAGE INTERACTIVE BOOK READER (SECTION 1)
+   ========================================================================== */
+
+.inline-book-reader-container {
+  background: #070912;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.book-reader-viewframe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 560px;
+  max-height: 720px;
+  background: #030408;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.inline-page-display {
+  max-height: 700px;
+  max-width: 82%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.inline-page-display img {
+  max-height: 620px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+  transition: opacity 0.25s ease;
+}
+
+.page-meta-overlay {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page-num-pill {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.page-title-text {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.inline-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(18, 24, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.inline-nav-btn:hover {
+  background: var(--primary);
+  color: #060913;
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.inline-nav-btn.prev { left: 1rem; }
+.inline-nav-btn.next { right: 1rem; }
+
+/* Filmstrip Bottom Strip */
+.inline-filmstrip-strip {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 1.1rem 0.5rem 0.5rem 0.5rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+}
+
+.inline-thumb-card {
+  width: 65px;
+  height: 90px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  background: #000;
+}
+
+.inline-thumb-card:hover {
+  opacity: 0.9;
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.inline-thumb-card.active {
+  border-color: var(--primary);
+  opacity: 1;
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.7);
+}
+
+.inline-thumb-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-badge {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* Expandable Grid of Season 1 */
+.s1-pages-grid {
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.5rem;
+}
+
+.grid-subheading {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pages-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.page-card {
+  background: #0c101d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.page-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 10px 30px rgba(0, 229, 255, 0.25);
+}
+
+.page-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: #000;
+}
+
+.page-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.page-card-num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.8);
+  color: #ffd700;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.page-card-info {
+  padding: 0.85rem;
+}
+
+.page-card-info h5 {
+  font-size: 0.88rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.page-card-info p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   SECTION 2: ORIGIN OF BAS YUHI (STORYBOOK DOUBLE SPREAD)
+   ========================================================================== */
+
+.storybook-double-spread {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 2.2rem;
+  margin-top: 1.75rem;
+}
+
+.storybook-page-card {
+  background: #0a0d18;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.storybook-page-card:hover {
+  transform: translateY(-5px);
+  border-color: #ffd700;
+  box-shadow: 0 25px 60px rgba(255, 215, 0, 0.3);
+}
+
+.storybook-page-media {
+  position: relative;
+  width: 100%;
+  background: #04050a;
+}
+
+.storybook-page-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.storybook-page-tag {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffd700;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.storybook-page-body {
+  padding: 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.storybook-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.storybook-lore-text {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+  margin-bottom: 1.5rem;
+}
+
+.storybook-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1rem;
+}
+
+.tools-tag {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.inspect-tag {
+  font-size: 0.82rem;
+  color: #ffd700;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ==========================================================================
+   SECTION 3: WE ARE PARALLEL TO EACH OTHER
+   ========================================================================== */
+
+.parallel-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+}
+
+.parallel-card.hero-parallel {
+  grid-column: 1 / -1;
+}
+
+.parallel-card {
+  background: #0a0d18;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.parallel-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 15px 40px rgba(0, 229, 255, 0.25);
+}
+
+.parallel-media {
+  position: relative;
+  width: 100%;
+  background: #000;
+}
+
+.parallel-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.parallel-overlay-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.parallel-info {
+  padding: 1.25rem;
+}
+
+.parallel-info h4 {
+  font-size: 1.15rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.parallel-info p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   SECTION 4: ARTIST SKETCHBOOK & SPECIAL RAW EXPLORATIONS
+   ========================================================================== */
+
+.sketchbook-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+}
+
+.sketchbook-item-card {
+  background: #111522;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1.1rem;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.sketchbook-item-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: #ffd700;
+  box-shadow: 0 15px 45px rgba(255, 215, 0, 0.25);
+}
+
+.tape-strip {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 2px;
+  backdrop-filter: blur(4px);
+}
+
+.sketchbook-media {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  margin-top: 0.5rem;
+}
+
+.sketchbook-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sketchbook-caption {
+  margin-top: 0.85rem;
+}
+
+.sketchbook-caption h5 {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.sketchbook-caption p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .series-hub-nav {
+    top: 60px;
+    padding: 0.65rem 1rem;
+    border-radius: 20px;
+  }
+  .series-showcase-section {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+  }
+  .series-main-title {
+    font-size: 1.75rem;
+  }
+  .storybook-double-spread {
+    grid-template-columns: 1fr;
+  }
+  .book-reader-viewframe {
+    min-height: 380px;
+    max-height: 480px;
+  }
+  .inline-page-display img {
+    max-height: 420px;
+  }
+  .inline-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
