@@ -3561,3 +3561,103 @@ body {
     font-size: 1rem;
   }
 }
+
+
+/* ==========================================================================
+   PERFORMANCE & ZERO LAYOUT SHIFT (CLS ELIMINATION)
+   ========================================================================== */
+
+/* Reserve stable space for Main Grid before images download */
+.art-grid {
+  min-height: 85vh;
+  contain: layout;
+}
+
+.media-container {
+  min-height: 290px;
+  background: #0a0d15;
+  contain: paint layout;
+}
+
+.art-card.span-normal {
+  min-height: 290px;
+}
+
+.art-card.span-wide {
+  min-height: 290px;
+}
+
+.art-card.span-tall {
+  min-height: 604px;
+}
+
+.art-card.span-hero {
+  min-height: 604px;
+}
+
+/* Personal Series Hub Space Reservation */
+.personal-series-hub {
+  min-height: 90vh;
+  contain: layout;
+}
+
+.book-reader-viewframe {
+  min-height: 600px;
+  contain: layout style;
+}
+
+.inline-page-display {
+  min-height: 560px;
+}
+
+.storybook-page-media {
+  min-height: 480px;
+  aspect-ratio: 2 / 3;
+  background: #05070e;
+  overflow: hidden;
+}
+
+.storybook-page-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.parallel-media {
+  min-height: 280px;
+  aspect-ratio: 16 / 10;
+  background: #05070e;
+  overflow: hidden;
+}
+
+.parallel-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sketchbook-media {
+  min-height: 240px;
+  aspect-ratio: 1 / 1;
+  background: #05070e;
+  overflow: hidden;
+}
+
+.sketchbook-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.page-card-media {
+  min-height: 240px;
+  aspect-ratio: 2 / 3;
+  background: #05070e;
+  overflow: hidden;
+}
+
+.page-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

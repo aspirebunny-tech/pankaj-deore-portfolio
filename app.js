@@ -559,15 +559,31 @@ function toggleShowHiddenArtworks() {
 }
 
 function handleUrlHash() {
-  const hash = window.location.hash.replace('#', '').toLowerCase();
+  const rawHash = window.location.hash.replace('#', '').trim();
+  const hash = rawHash.toLowerCase();
+  
+  // If hash is an internal section jump, do NOT change category or redirect
+  if (rawHash.startsWith('sec-') || rawHash.startsWith('inline-') || rawHash.startsWith('art-')) {
+    const target = document.getElementById(rawHash);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return;
+  }
+
   if (hash === 'admin' || hash === 'login') {
     openLoginModal();
     return;
   }
+
   if (hash && (CATEGORY_NAMES[hash] || hash === 'featured')) {
-    setCategory(hash, false);
-  } else {
-    setCategory('featured', false);
+    if (currentCategory !== hash) {
+      setCategory(hash, false);
+    }
+  } else if (!hash) {
+    if (currentCategory !== 'featured') {
+      setCategory('featured', false);
+    }
   }
 }
 
@@ -692,7 +708,7 @@ function renderGallery() {
 
   grid.innerHTML = activeArtworks.map((art, index) => {
     const isVideo = art.isVideo;
-    const mediaUrl = getArtworkUrl(art.src);
+    const mediaUrl = getFullArtworkUrl(art.src); // 100% lossless master resolution for lightbox inspect
     const isFeatured = art.featured;
     const isHidden = art.hidden;
     
@@ -1072,6 +1088,13 @@ function setupRadioSyncListeners() {
 // LIGHTBOX MODAL & STORY DISPLAY
 // ==========================================================================
 function openModal(index) {
+  // If activeArtworks is empty or out of sync with personal series, sync it
+  if (currentCategory === 'personal-series' && (!activeArtworks || activeArtworks.length === 0 || activeArtworks[0].category !== 'personal-series')) {
+    activeArtworks = artworks.filter(a => a.category === 'personal-series' && !a.hidden);
+  } else if (!activeArtworks || activeArtworks.length === 0) {
+    activeArtworks = filterArtworks();
+  }
+
   if (index < 0 || index >= activeArtworks.length) return;
   currentModalIndex = index;
 
@@ -1084,7 +1107,7 @@ function openModal(index) {
   const adminActions = document.getElementById('modal-admin-actions');
   const featureBtn = document.getElementById('modal-feature-btn');
 
-  const mediaUrl = getArtworkUrl(art.src);
+  const mediaUrl = getFullArtworkUrl(art.src); // 100% lossless master resolution for lightbox inspect
 
   if (art.isVideo) {
     mediaWrap.innerHTML = `
@@ -1247,7 +1270,7 @@ function openArtworkEditor(artId) {
   // Preview
   const previewWrap = document.getElementById('edit-preview-wrap');
   const filenameEl = document.getElementById('edit-preview-filename');
-  const mediaUrl = getArtworkUrl(art.src);
+  const mediaUrl = getFullArtworkUrl(art.src); // 100% lossless master resolution for lightbox inspect
 
   if (art.isVideo) {
     previewWrap.innerHTML = `<video controls autoplay loop muted style="max-height: 100%;"><source src="${mediaUrl}" type="video/mp4"></video>`;
@@ -2250,18 +2273,18 @@ function renderPersonalSeriesHub() {
   hub.innerHTML = `
     <!-- Top Sticky Series Switcher Strip -->
     <div class="series-hub-nav">
-      <a href="#sec-bas-yuhi" class="hub-nav-pill active">
+      <button type="button" class="hub-nav-pill active" onclick="scrollToSeriesSec('sec-bas-yuhi', this)">
         <i class="fa-solid fa-book-bookmark"></i> Bas Yuhi: Season 1 (${s1Pages.length} Pages)
-      </a>
-      <a href="#sec-origin-yuhi" class="hub-nav-pill">
+      </button>
+      <button type="button" class="hub-nav-pill" onclick="scrollToSeriesSec('sec-origin-yuhi', this)">
         <i class="fa-solid fa-sparkles"></i> Origin of Bas Yuhi (${originPages.length} Pages Lore)
-      </a>
-      <a href="#sec-parallel" class="hub-nav-pill">
+      </button>
+      <button type="button" class="hub-nav-pill" onclick="scrollToSeriesSec('sec-parallel', this)">
         <i class="fa-solid fa-masks-theater"></i> We Are Parallel To Each Other (${parallelArt.length} Works)
-      </a>
-      <a href="#sec-special" class="hub-nav-pill">
+      </button>
+      <button type="button" class="hub-nav-pill" onclick="scrollToSeriesSec('sec-special', this)">
         <i class="fa-solid fa-wand-magic-sparkles"></i> Artist Sketchbook & Raw Art (${specialArt.length} Works)
-      </a>
+      </button>
     </div>
 
     <!-- ==================================================================== -->
@@ -2354,7 +2377,7 @@ function renderPersonalSeriesHub() {
 
       <div class="storybook-double-spread">
         ${originPages.map((art, idx) => `
-          <div class="storybook-page-card" onclick="openOriginModal(${art.id})">
+          <div class="storybook-page-card" onclick="openArtworkModalById(${art.id})">
             <div class="storybook-page-media">
               <img src="${getArtworkUrl(art.src)}" alt="${art.title}" />
               <div class="storybook-page-tag">${idx === 0 ? 'Page 01 · Astral Awakening' : 'Page 02 · The Living Realm'}</div>
@@ -2384,7 +2407,7 @@ function renderPersonalSeriesHub() {
 
       <div class="parallel-gallery-grid">
         ${parallelArt.map((art, idx) => `
-          <div class="parallel-card ${idx === 0 ? 'hero-parallel' : ''}" onclick="openOriginModal(${art.id})">
+          <div class="parallel-card ${idx === 0 ? 'hero-parallel' : ''}" onclick="openArtworkModalById(${art.id})">
             <div class="parallel-media">
               <img src="${getArtworkUrl(art.src)}" alt="${art.title}" loading="lazy" />
               <div class="parallel-overlay-badge">${art.title}</div>
@@ -2411,7 +2434,7 @@ function renderPersonalSeriesHub() {
 
       <div class="sketchbook-deck-grid">
         ${specialArt.map((art, idx) => `
-          <div class="sketchbook-item-card" onclick="openOriginModal(${art.id})">
+          <div class="sketchbook-item-card" onclick="openArtworkModalById(${art.id})">
             <div class="tape-strip"></div>
             <div class="sketchbook-media">
               <img src="${getArtworkUrl(art.src)}" alt="${art.title}" loading="lazy" />
@@ -2489,9 +2512,38 @@ function toggleS1GridView() {
   }
 }
 
+function openArtworkModalById(artId) {
+  const art = artworks.find(a => a.id === artId);
+  if (!art) return;
+
+  // Sync activeArtworks to match the current view
+  if (currentCategory === 'personal-series') {
+    activeArtworks = artworks.filter(a => a.category === 'personal-series' && !a.hidden);
+  } else {
+    activeArtworks = filterArtworks();
+  }
+
+  let idx = activeArtworks.findIndex(a => a.id === artId);
+  if (idx === -1) {
+    activeArtworks.push(art);
+    idx = activeArtworks.length - 1;
+  }
+  openModal(idx);
+}
+
+// Backward compatibility alias
 function openOriginModal(artId) {
-  const idx = artworks.findIndex(a => a.id === artId);
-  if (idx !== -1) {
-    openModal(idx);
+  openArtworkModalById(artId);
+}
+
+
+function scrollToSeriesSec(secId, btn) {
+  const el = document.getElementById(secId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (btn) {
+    document.querySelectorAll('.hub-nav-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
   }
 }
