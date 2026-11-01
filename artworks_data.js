@@ -52,7 +52,7 @@ const ARTWORKS_DATA = [
     "category_name": "Character Design",
     "isVideo": false,
     "featured": false,
-    "hidden": false,
+    "hidden": true,
     "story": "",
     "tools": "",
     "client": "",
